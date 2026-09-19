@@ -534,39 +534,12 @@ input,textarea{ font-family:inherit; }
   100% { box-shadow: inset 0 10px 22px #000, inset 0 -6px 12px #000, 0 0 26px #000; }
 }
 
-.doll.falling{
-  z-index:0;
-  animation:fall 1.4s cubic-bezier(.42,0,.66,.28) forwards;
+/* Boneco que já caiu na arena fica só como "fantasma" riscado */
+.player.fell .doll{
+  animation: dollDissolve .6s forwards;
 }
-@keyframes fall{
-  0% {
-    transform: translateY(0) rotate(0deg) scale(1);
-    opacity: 1;
-  }
-  8% {
-    transform: translateY(-9%) rotate(-4deg) scale(1.04);
-    opacity: 1;
-  }
-  22% {
-    transform: translateY(-1%) rotate(7deg) scale(1.02);
-    opacity: 1;
-  }
-  36% {
-    transform: translateY(7%) rotate(-6deg) scale(.99);
-    opacity: 1;
-  }
-  52% {
-    transform: translateY(32%) rotate(26deg) scale(.84);
-    opacity: 1;
-  }
-  72% {
-    transform: translateY(68%) rotate(52deg) scale(.55);
-    opacity: .9;
-  }
-  100% {
-    transform: translateY(125%) rotate(80deg) scale(.2);
-    opacity: 0;
-  }
+@keyframes dollDissolve{
+  to { opacity: .12; filter: grayscale(1) blur(1px); }
 }
 
 .player.correct .doll{ filter:drop-shadow(0 0 18px rgba(37,211,102,.95)) drop-shadow(0 10px 12px rgba(0,0,0,.5)); }
@@ -652,6 +625,245 @@ input,textarea{ font-family:inherit; }
 .tgroup.no{ border-color:rgba(255,59,92,.55); }
 .tgroup.out{ opacity:.45; }
 
+/* ============================================================
+   OVERLAY DE QUEDA EM DESTAQUE (o clímax do jogo)
+============================================================ */
+.fall-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity .45s ease;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 45%, rgba(120,0,30,.55) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(0,0,0,.94) 0%, #000 100%);
+}
+.fall-overlay::before{
+  content:'';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,.015) 3px, rgba(255,255,255,.015) 4px);
+  pointer-events: none;
+  opacity: .5;
+  mix-blend-mode: overlay;
+}
+.fall-overlay.show{
+  opacity: 1;
+  pointer-events: auto;
+}
+.fall-overlay.hidden{ display: none; }
+
+.fall-stage{
+  position: relative;
+  text-align: center;
+  padding: 20px;
+  animation: stagePop .6s cubic-bezier(.34,1.56,.64,1);
+  transform-origin: center;
+}
+@keyframes stagePop{
+  from { transform: scale(.82); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.fall-badge{
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff3b5c, #a1001f);
+  color: #fff;
+  font-size: clamp(11px, 1.4vw, 14px);
+  font-weight: 900;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 24px rgba(255,59,92,.6);
+  margin-bottom: 14px;
+  animation: badgePulse .9s ease infinite alternate;
+}
+@keyframes badgePulse{
+  from { transform: scale(1); box-shadow: 0 6px 24px rgba(255,59,92,.6); }
+  to   { transform: scale(1.04); box-shadow: 0 8px 32px rgba(255,59,92,.95); }
+}
+
+.fall-name{
+  font-size: clamp(24px, 5.5vw, 52px);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  text-shadow:
+    0 0 20px rgba(255,59,92,.9),
+    0 0 60px rgba(255,59,92,.6),
+    0 4px 30px rgba(0,0,0,.9);
+  animation: nameGlow 1.1s ease-in-out infinite alternate;
+}
+@keyframes nameGlow{
+  from { text-shadow: 0 0 20px rgba(255,59,92,.7), 0 0 60px rgba(255,59,92,.4), 0 4px 30px #000; }
+  to   { text-shadow: 0 0 28px rgba(255,59,92,1), 0 0 90px rgba(255,59,92,.7), 0 4px 30px #000; }
+}
+
+.fall-sub{
+  font-size: clamp(10px, 1.4vw, 14px);
+  color: #ff8da1;
+  letter-spacing: 6px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: clamp(24px, 5vh, 60px);
+  opacity: .9;
+}
+
+.fall-dolls{
+  display: flex;
+  gap: clamp(10px, 3vw, 40px);
+  justify-content: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  max-width: 92vw;
+  margin: 0 auto;
+}
+
+.fall-pair{
+  position: relative;
+  width: clamp(90px, 20vw, 190px);
+  flex: 0 0 auto;
+}
+
+.fall-doll{
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  transform-origin: 50% 96%;
+  filter: drop-shadow(0 20px 26px rgba(0,0,0,.85));
+  animation: dollDrop .7s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes dollDrop{
+  0%   { transform: translateY(-90%) scale(.35) rotate(-8deg); opacity: 0; }
+  60%  { transform: translateY(6%) scale(1.06) rotate(2deg); opacity: 1; }
+  100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+}
+.fall-doll svg{ width: 100%; height: auto; display: block; }
+
+.fall-doll.shake{
+  animation: dollShakeBig .4s ease-in-out infinite;
+}
+@keyframes dollShakeBig{
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  20%     { transform: translateX(-5px) rotate(-4deg); }
+  40%     { transform: translateX(5px) rotate(4deg); }
+  60%     { transform: translateX(-4px) rotate(-3deg); }
+  80%     { transform: translateX(4px) rotate(3deg); }
+}
+
+.fall-doll.falling{
+  animation: dollFallBig 1.5s cubic-bezier(.42,0,.66,.28) forwards;
+}
+@keyframes dollFallBig{
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  8%   { transform: translateY(-16%) rotate(-5deg) scale(1.08); opacity: 1; }
+  22%  { transform: translateY(-4%) rotate(9deg) scale(1.05); opacity: 1; }
+  38%  { transform: translateY(12%) rotate(-9deg) scale(1); opacity: 1; }
+  55%  { transform: translateY(45%) rotate(34deg) scale(.82); opacity: 1; }
+  75%  { transform: translateY(95%) rotate(65deg) scale(.5); opacity: .8; }
+  100% { transform: translateY(175%) rotate(100deg) scale(.1); opacity: 0; }
+}
+
+.fall-hole{
+  position: absolute;
+  top: 84%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150%;
+  height: 24%;
+  z-index: 1;
+  pointer-events: none;
+}
+.fall-hole-dark{
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 45%, #000 0%, #000 45%, #08060e 100%);
+  box-shadow:
+    inset 0 22px 45px #000,
+    inset 0 -8px 18px #000,
+    0 0 60px rgba(0,0,0,1);
+}
+.fall-door{
+  position: absolute; top: 0; height: 100%; width: 50%;
+  background: linear-gradient(180deg, #4a5878 0%, #2a3448 40%, #141a28 100%);
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,.7), inset 0 6px 8px rgba(255,255,255,.08);
+  transition: transform .85s cubic-bezier(.55,0,.35,1), opacity .85s;
+}
+.fall-door.dl{ left: 0; border-radius: 100% 0 0 100% / 50% 0 0 50%; }
+.fall-door.dr{ right: 0; border-radius: 0 100% 100% 0 / 0 50% 50% 0; }
+.fall-hole.open .dl{ transform: translate(-125%,30%) rotate(-32deg); opacity: 0; }
+.fall-hole.open .dr{ transform: translate(125%,30%) rotate(32deg); opacity: 0; }
+
+.fall-hole.open::before{
+  content: '';
+  position: absolute;
+  inset: -70%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,40,80,.75) 0%, rgba(255,40,80,0) 60%);
+  animation: holeFlashBig 1.2s ease-out;
+  pointer-events: none;
+}
+@keyframes holeFlashBig{
+  0%   { opacity: 0; transform: scale(.3); }
+  35%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+.fall-hole.open .fall-hole-dark{
+  animation: holeInnerGlowBig 1.7s ease-out;
+}
+@keyframes holeInnerGlowBig{
+  0%   { box-shadow: inset 0 22px 45px #000, inset 0 -8px 18px #000, 0 0 60px #000; }
+  30%  { box-shadow: inset 0 30px 65px #000, inset 0 -12px 24px #000, 0 0 100px rgba(255,40,80,.7); }
+  100% { box-shadow: inset 0 22px 45px #000, inset 0 -8px 18px #000, 0 0 60px #000; }
+}
+
+/* Raio de impacto quando o boneco some */
+.fall-impact{
+  position: absolute;
+  left: 50%;
+  top: 90%;
+  transform: translate(-50%,-50%) scale(.3);
+  width: 160%;
+  height: 40%;
+  border-radius: 50%;
+  border: 4px solid rgba(255,80,110,.9);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.fall-impact.go{
+  animation: impactWave .7s ease-out forwards;
+}
+@keyframes impactWave{
+  0%   { opacity: 1; transform: translate(-50%,-50%) scale(.3); border-width: 6px; }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(2); border-width: 1px; }
+}
+
+/* Botão de pular */
+.fall-skip{
+  position: fixed;
+  bottom: 26px; right: 26px;
+  padding: 10px 18px;
+  border-radius: 11px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 10001;
+  letter-spacing: .5px;
+  transition: .15s;
+}
+.fall-skip:hover{ background: rgba(255,255,255,.16); }
+
 @media (max-width: 860px){
   .game-main{ flex-direction:column; }
   .panel{ width:100%; flex:0 0 40%; border-left:0; border-top:1px solid var(--line); }
@@ -662,6 +874,10 @@ input,textarea{ font-family:inherit; }
   .pill{ font-size:11px; padding:5px 9px; }
   .stage-card{ width:94%; padding:12px 14px; max-height:80%; }
   .stage-card.result-mode{ width:88%; max-height:20%; padding:8px 12px; }
+  .fall-name{ font-size: clamp(22px, 7vw, 40px); }
+  .fall-sub{ letter-spacing: 4px; margin-bottom: 28px; }
+  .fall-pair{ width: clamp(80px, 34vw, 150px); }
+  .fall-skip{ bottom: 14px; right: 14px; padding: 8px 14px; font-size: 12px; }
 }
 @media (max-width: 520px){
   .members{ grid-template-columns:1fr; }
@@ -834,6 +1050,17 @@ input,textarea{ font-family:inherit; }
   </div>
 </div>
 
+<!-- Overlay de queda (cena principal quando alguém erra) -->
+<div class="fall-overlay hidden" id="fallOverlay">
+  <div class="fall-stage" id="fallStage">
+    <div class="fall-badge">💀 Caiu no buraco</div>
+    <div class="fall-name" id="fallName">Nome</div>
+    <div class="fall-sub">Errou a resposta</div>
+    <div class="fall-dolls" id="fallDolls"></div>
+  </div>
+  <button class="fall-skip" id="fallSkip" onclick="skipFall()">Pular ▸</button>
+</div>
+
 <script>
 const state = {
   mode: 'individual',
@@ -928,6 +1155,136 @@ function svgAvatar(gender, photoUrl, color){
   </svg>`;
 }
 
+/* ============================================================
+   CENA DE QUEDA EM DESTAQUE
+============================================================ */
+let _fallResolve = null;
+let _fallTimers = [];
+
+function clearFallTimers(){
+  _fallTimers.forEach(t => clearTimeout(t));
+  _fallTimers = [];
+}
+function fallTimeout(fn, ms){
+  const t = setTimeout(fn, ms);
+  _fallTimers.push(t);
+  return t;
+}
+
+/* members: array de membros que vão cair
+   teamColor: cor base
+   teamName: nome exibido no topo (nome do participante ou "Equipe X") */
+function playFallSequence(members, teamColor, teamName){
+  return new Promise(resolve => {
+    clearFallTimers();
+
+    const overlay = document.getElementById('fallOverlay');
+    const stage = document.getElementById('fallStage');
+    const nameEl = document.getElementById('fallName');
+    const dollsWrap = document.getElementById('fallDolls');
+    const skipBtn = document.getElementById('fallSkip');
+
+    // Reset
+    overlay.classList.add('hidden');
+    overlay.classList.remove('show');
+    dollsWrap.innerHTML = '';
+    skipBtn.style.display = '';
+
+    // Monta cada par boneco+buraco
+    members.forEach(m => {
+      const pair = document.createElement('div');
+      pair.className = 'fall-pair';
+
+      const dollDiv = document.createElement('div');
+      dollDiv.className = 'fall-doll';
+      dollDiv.innerHTML = svgAvatar(m.gender, m.photo, teamColor);
+
+      const holeDiv = document.createElement('div');
+      holeDiv.className = 'fall-hole';
+      holeDiv.innerHTML = `
+        <div class="fall-hole-dark"></div>
+        <div class="fall-door dl"></div>
+        <div class="fall-door dr"></div>
+        <div class="fall-impact"></div>
+      `;
+
+      pair.appendChild(holeDiv);
+      pair.appendChild(dollDiv);
+      dollsWrap.appendChild(pair);
+    });
+
+    nameEl.textContent = teamName;
+    nameEl.style.animation = 'none';
+    void nameEl.offsetWidth;
+    nameEl.style.animation = '';
+
+    // Reinicia animação do stage (pop)
+    stage.style.animation = 'none';
+    void stage.offsetWidth;
+    stage.style.animation = '';
+
+    // Mostra overlay
+    overlay.classList.remove('hidden');
+    void overlay.offsetWidth;
+    overlay.classList.add('show');
+
+    _fallResolve = () => {
+      clearFallTimers();
+      overlay.classList.remove('show');
+      fallTimeout(() => {
+        overlay.classList.add('hidden');
+        _fallResolve = null;
+        resolve();
+      }, 420);
+    };
+
+    // 0.6s → boneco começa a tremer (suspense)
+    fallTimeout(() => {
+      dollsWrap.querySelectorAll('.fall-doll').forEach(d => d.classList.add('shake'));
+    }, 700);
+
+    // 1.5s → buraco abre (portas deslizam + clarão)
+    fallTimeout(() => {
+      dollsWrap.querySelectorAll('.fall-hole').forEach(h => h.classList.add('open'));
+    }, 1600);
+
+    // 2.3s → boneco cai
+    fallTimeout(() => {
+      const dolls = dollsWrap.querySelectorAll('.fall-doll');
+      dolls.forEach((d, i) => {
+        fallTimeout(() => {
+          d.classList.remove('shake');
+          // Reinicia animação
+          d.style.animation = 'none';
+          void d.offsetWidth;
+          d.style.animation = '';
+          d.classList.add('falling');
+        }, i * 120);
+      });
+    }, 2300);
+
+    // 3.6s → onda de impacto no buraco
+    fallTimeout(() => {
+      dollsWrap.querySelectorAll('.fall-impact').forEach(imp => {
+        imp.classList.add('go');
+      });
+    }, 3600);
+
+    // 4.1s → encerra cena automaticamente
+    fallTimeout(() => {
+      if (_fallResolve) _fallResolve();
+    }, 4100);
+  });
+}
+
+/* Pular a cena */
+function skipFall(){
+  if (_fallResolve) _fallResolve();
+}
+
+/* ============================================================
+   MODOS / SETUP
+============================================================ */
 document.querySelectorAll('#modeSeg button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#modeSeg button').forEach(b => b.classList.remove('active'));
@@ -971,6 +1328,9 @@ function bindToggle(id){
 bindToggle('timerEnabled');
 bindToggle('useQuestions');
 
+/* ============================================================
+   PERGUNTAS
+============================================================ */
 function renderQuestionList(){
   const host = document.getElementById('questionList');
   host.innerHTML = '';
@@ -1096,6 +1456,9 @@ function loadExampleQuestions(){
 
 renderQuestionList();
 
+/* ============================================================
+   EDITOR
+============================================================ */
 function findUnit(id){ return state.units.find(u => u.id === id); }
 function findMember(unitId, memberId){
   const u = findUnit(unitId);
@@ -1248,6 +1611,9 @@ document.getElementById('editor').addEventListener('input', e => {
   }
 });
 
+/* ============================================================
+   INICIAR JOGO
+============================================================ */
 function iniciarJogo(){
   state.timerEnabled = document.getElementById('timerEnabled').checked;
   state.timerDuration = Math.max(0, parseInt(document.getElementById('timerSeconds').value) || 0);
@@ -1385,6 +1751,9 @@ document.getElementById('panelList').addEventListener('click', e => {
   handleAnswer(unitId, ok, null, true);
 });
 
+/* ============================================================
+   TURNO / PERGUNTAS
+============================================================ */
 let timerInterval = null;
 
 function currentUnit(){ return state.units[state.currentIdx] || null; }
@@ -1619,7 +1988,6 @@ function highlightUnit(unitId, cls){
   }
 }
 
-/* Prepara o card para o modo "aguardando queda" (mensagem no topo) */
 function shrinkCardForResult(){
   document.getElementById('csSecondary').classList.add('hidden');
   document.getElementById('csInputWrap').classList.add('hidden');
@@ -1629,7 +1997,6 @@ function shrinkCardForResult(){
   document.getElementById('stageCard').classList.add('result-mode');
 }
 
-/* Avança para o próximo turno (ou encerra) */
 function advanceTurn(){
   if (state.ended) return;
   renderPanel();
@@ -1648,7 +2015,7 @@ function advanceTurn(){
   startTurn();
 }
 
-function handleAnswer(unitId, correct, typed, forced){
+async function handleAnswer(unitId, correct, typed, forced){
   if (state.ended || !state.turnActive) return;
   const u = state.units.find(x => x.id === unitId);
   if (!u || !u.alive) return;
@@ -1692,80 +2059,42 @@ function handleAnswer(unitId, correct, typed, forced){
     return;
   }
 
-  /* ---------- ERRO em modo eliminação: cai no buraco ---------- */
+  /* ---------- ERRO em modo eliminação: CAI NO BURACO (cena em destaque) ---------- */
   u.alive = false;
   u.members.forEach(m => { m.alive = false; });
+
   let msg = `<span class="r">✗ ${escapeHtml(unitDisplayName(u))} errou e caiu!</span>`;
   if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
   showMessage(msg);
   shrinkCardForResult();
 
-  const players = u.members
+  // Marca o boneco na arena como "caindo" também (tremor), para dar coesão visual
+  const arenaPlayers = u.members
     .map(m => arena.querySelector(`.player[data-member-id="${m.id}"]`))
     .filter(Boolean);
-
-  // Sem ninguém pra animar: avança direto
-  if (!players.length){
-    setTimeout(advanceTurn, 800);
-    return;
-  }
-
-  // Tremor inicial dos bonecos
-  players.forEach(el => {
+  arenaPlayers.forEach(el => {
     el.classList.add('wrong');
-    setTimeout(() => el.classList.remove('wrong'), 480);
+    setTimeout(() => el.classList.remove('wrong'), 500);
   });
 
-  // Abre o buraco (portinholas)
-  setTimeout(() => {
-    players.forEach((el, idx) => {
-      setTimeout(() => {
-        const hole = el.querySelector('.hole');
-        if (hole) hole.classList.add('open');
-      }, idx * 90);
-    });
-  }, 400);
+  // 🎬 Roda a cena em destaque (overlay no centro da tela)
+  await playFallSequence(u.members, u.color, unitDisplayName(u));
 
-  // Só depois que TODOS os bonecos terminarem a animação de queda é que o
-  // próximo turno é liberado. Usamos `animationend` para garantir que a
-  // pergunta só apareça depois que o participante caiu TOTALMENTE no buraco.
-  setTimeout(() => {
-    let remaining = players.length;
-    let advanced = false;
+  // Depois da queda: marca como "fell" na arena (boneco vira fantasma riscado)
+  arenaPlayers.forEach(el => {
+    el.classList.add('fell');
+    el.classList.add('out');
+    // Abre o buraco da arena também para ficar coerente
+    const hole = el.querySelector('.hole');
+    if (hole) hole.classList.add('open');
+  });
 
-    function onOneFallComplete(){
-      remaining--;
-      if (remaining > 0 || advanced) return;
-      advanced = true;
+  // Treme a arena como impacto final
+  arena.classList.add('shake');
+  setTimeout(() => arena.classList.remove('shake'), 600);
 
-      // Impacto: arena treme + nomes riscados
-      arena.classList.add('shake');
-      setTimeout(() => arena.classList.remove('shake'), 600);
-      players.forEach(el => el.classList.add('out'));
-
-      // Aguarda o impacto + um respiro antes de chamar o próximo turno
-      setTimeout(advanceTurn, 900);
-    }
-
-    players.forEach((el, idx) => {
-      setTimeout(() => {
-        const doll = el.querySelector('.doll');
-        if (!doll){ onOneFallComplete(); return; }
-
-        // Fallback: se `animationend` não disparar (reduzir movimento, aba em
-        // segundo plano, etc.), libera o próximo turno por tempo.
-        const fallbackMs = 1700;
-        const fallbackTimer = setTimeout(onOneFallComplete, fallbackMs);
-
-        doll.addEventListener('animationend', () => {
-          clearTimeout(fallbackTimer);
-          onOneFallComplete();
-        }, { once: true });
-
-        doll.classList.add('falling');
-      }, idx * 90);
-    });
-  }, 900);
+  // Próximo turno
+  setTimeout(advanceTurn, 700);
 }
 
 function nextAlive(){
@@ -1803,7 +2132,7 @@ function endGame(winner){
   }
 
   const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:9999;
+  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:99999;
     display:grid; place-items:center; padding:20px; animation:fadeIn .4s ease;`;
   overlay.innerHTML = `
     <div style="text-align:center; max-width:520px; width:100%; padding:44px 30px;
