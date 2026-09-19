@@ -248,8 +248,18 @@ input,textarea{ font-family:inherit; }
   background:radial-gradient(ellipse at center, rgba(0,0,0,.65), transparent 70%);
   pointer-events:none;
 }
+.arena.shake{
+  animation:arenaShake .55s cubic-bezier(.36,.07,.19,.97);
+}
+@keyframes arenaShake{
+  0%,100%{ transform:translate(0,0) }
+  15%{ transform:translate(-5px,3px) }
+  30%{ transform:translate(5px,-3px) }
+  45%{ transform:translate(-4px,-2px) }
+  60%{ transform:translate(4px,2px) }
+  80%{ transform:translate(-2px,1px) }
+}
 
-/* --- Card central: modo pergunta --- */
 .stage-card{
   position:absolute; left:50%; top:50%;
   transform:translate(-50%,-50%);
@@ -274,13 +284,11 @@ input,textarea{ font-family:inherit; }
               border-color .35s ease,
               transform .45s cubic-bezier(.4,0,.2,1);
 }
-
-/* --- Card central: modo resultado (encolhe pro topo, deixa a arena visível) --- */
 .stage-card.result-mode{
   top: 12px;
   transform: translate(-50%, 0);
   width: min(70%, 460px);
-  max-height: 26%;
+  max-height: 24%;
   padding: 9px 14px;
   border-radius: 14px;
   background: rgba(8,12,22,.88);
@@ -441,7 +449,6 @@ input,textarea{ font-family:inherit; }
   color:#ffd66b; font-size:12.5px; font-weight:800; line-height:1.4;
 }
 
-/* --- Jogadores --- */
 .player{
   position:absolute;
   transform:translate(-50%,-100%);
@@ -471,54 +478,109 @@ input,textarea{ font-family:inherit; }
 .doll{
   position:relative; z-index:2;
   width:var(--w,60px);
+  transform-origin: 50% 96%;
   filter:drop-shadow(0 10px 12px rgba(0,0,0,.55));
   transition:filter .2s;
+  will-change: transform, opacity;
 }
 .doll svg{ width:100%; height:auto; display:block; }
 
+/* BURACO — maior, mais escuro, com lábios visíveis */
 .hole{
-  position:absolute; top:88%; left:50%;
+  position:absolute; top:82%; left:50%;
   transform:translateX(-50%);
-  width:calc(var(--w,60px) * 1.15);
-  height:calc(var(--w,60px) * 0.30);
+  width:calc(var(--w,60px) * 1.42);
+  height:calc(var(--w,60px) * 0.40);
   z-index:1;
+  pointer-events:none;
 }
 .hole-dark{
   position:absolute; inset:0; border-radius:50%;
-  background:#000;
-  box-shadow:inset 0 8px 18px rgba(0,0,0,1), 0 0 22px rgba(0,0,0,.9);
+  background: radial-gradient(ellipse at 50% 45%, #000 0%, #000 45%, #08060e 100%);
+  box-shadow:
+    inset 0 10px 22px rgba(0,0,0,1),
+    inset 0 -6px 12px rgba(0,0,0,.9),
+    0 0 26px rgba(0,0,0,.95);
 }
 .door{
   position:absolute; top:0; height:100%; width:50%;
-  background:linear-gradient(180deg,#3d4a66,#1a2132);
-  transition:transform .7s cubic-bezier(.45,0,.55,1), opacity .7s;
+  background:linear-gradient(180deg,#4a5878 0%, #2a3448 40%, #141a28 100%);
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,.6), inset 0 4px 6px rgba(255,255,255,.06);
+  transition:transform .75s cubic-bezier(.55,0,.35,1), opacity .75s;
 }
 .dl{ left:0; border-radius:100% 0 0 100% / 50% 0 0 50%; }
 .dr{ right:0; border-radius:0 100% 100% 0 / 0 50% 50% 0; }
-.hole.open .dl{ transform:translate(-115%,20%) rotate(-22deg); opacity:0; }
-.hole.open .dr{ transform:translate(115%,20%) rotate(22deg); opacity:0; }
-.hole.open{ animation:holeGlow .8s ease; }
-@keyframes holeGlow{
-  0%{ filter:drop-shadow(0 0 0 rgba(255,60,90,0)); }
-  40%{ filter:drop-shadow(0 0 18px rgba(255,60,90,.9)); }
-  100%{ filter:drop-shadow(0 0 0 rgba(255,60,90,0)); }
+.hole.open .dl{ transform:translate(-118%,26%) rotate(-28deg); opacity:0; }
+.hole.open .dr{ transform:translate(118%,26%) rotate(28deg); opacity:0; }
+
+/* Flash vermelho ao abrir */
+.hole.open::before{
+  content:'';
+  position:absolute; inset:-40%;
+  border-radius:50%;
+  background:radial-gradient(ellipse, rgba(255,40,80,.55) 0%, rgba(255,40,80,0) 65%);
+  animation:holeFlash 1s ease-out;
+  pointer-events:none;
+}
+@keyframes holeFlash{
+  0%   { opacity:0; transform:scale(.4); }
+  35%  { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(1.5); }
+}
+.hole.open .hole-dark{
+  animation:holeInnerGlow 1.4s ease-out;
+}
+@keyframes holeInnerGlow{
+  0%   { box-shadow: inset 0 10px 22px #000, inset 0 -6px 12px #000, 0 0 26px #000; }
+  35%  { box-shadow: inset 0 14px 30px #000, inset 0 -8px 16px #000, 0 0 40px rgba(255,40,80,.45); }
+  100% { box-shadow: inset 0 10px 22px #000, inset 0 -6px 12px #000, 0 0 26px #000; }
 }
 
-/* --- QUEDA DRAMÁTICA: sobe um pouco, tomba, gira e some no buraco --- */
+/* QUEDA — boneco tomba, gira e afunda no buraco */
 .doll.falling{
   z-index:0;
-  animation:fall 1.15s cubic-bezier(.4,0,.7,.4) forwards;
+  animation:fall 1.35s cubic-bezier(.42,0,.66,.28) forwards;
 }
 @keyframes fall{
-  0%   { transform:translateY(0) scale(1) rotate(0deg); opacity:1; }
-  12%  { transform:translateY(-14%) scale(1.05) rotate(-6deg); opacity:1; }
-  25%  { transform:translateY(-6%) scale(1.02) rotate(4deg); opacity:1; }
-  45%  { transform:translateY(30%) scale(.92) rotate(-14deg); opacity:1; }
-  70%  { transform:translateY(120%) scale(.6) rotate(28deg); opacity:.8; }
-  100% { transform:translateY(320%) scale(.18) rotate(65deg); opacity:0; }
+  /* 0% — em pé */
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  /* 8% — antecipação: sobe um pouco e recua */
+  8% {
+    transform: translateY(-9%) rotate(-4deg) scale(1.04);
+    opacity: 1;
+  }
+  /* 22% — balança para frente na beira */
+  22% {
+    transform: translateY(-1%) rotate(7deg) scale(1.02);
+    opacity: 1;
+  }
+  /* 36% — desequilibra para trás */
+  36% {
+    transform: translateY(7%) rotate(-6deg) scale(.99);
+    opacity: 1;
+  }
+  /* 52% — tomba de vez */
+  52% {
+    transform: translateY(30%) rotate(26deg) scale(.84);
+    opacity: 1;
+  }
+  /* 72% — já está afundando */
+  72% {
+    transform: translateY(62%) rotate(52deg) scale(.58);
+    opacity: .92;
+  }
+  /* 100% — engolido */
+  100% {
+    transform: translateY(115%) rotate(78deg) scale(.24);
+    opacity: 0;
+  }
 }
+
 .player.correct .doll{ filter:drop-shadow(0 0 18px rgba(37,211,102,.95)) drop-shadow(0 10px 12px rgba(0,0,0,.5)); }
-.player.wrong .doll{ animation:shake .45s; filter:drop-shadow(0 0 18px rgba(255,59,92,.95)); }
+.player.wrong .doll{ animation:shake .5s; filter:drop-shadow(0 0 20px rgba(255,59,92,.95)); }
 .player.correct .nameplate{ border-color:var(--green); box-shadow:0 0 18px rgba(37,211,102,.6); }
 .player.wrong .nameplate{ border-color:var(--red); box-shadow:0 0 18px rgba(255,59,92,.6); }
 .player.picked .doll{ animation:pulsePick 1.1s ease infinite; }
@@ -528,10 +590,10 @@ input,textarea{ font-family:inherit; }
 }
 @keyframes shake{
   0%,100%{ transform:translateX(0); }
-  20%{ transform:translateX(-6%); }
-  40%{ transform:translateX(6%); }
-  60%{ transform:translateX(-4%); }
-  80%{ transform:translateX(4%); }
+  20%{ transform:translateX(-8%); }
+  40%{ transform:translateX(8%); }
+  60%{ transform:translateX(-5%); }
+  80%{ transform:translateX(5%); }
 }
 .player.out .nameplate{
   opacity:.42; text-decoration:line-through; border-color:rgba(255,255,255,.12);
@@ -609,7 +671,7 @@ input,textarea{ font-family:inherit; }
   .topactions .btn{ padding:8px 10px; font-size:12px; }
   .pill{ font-size:11px; padding:5px 9px; }
   .stage-card{ width:94%; padding:12px 14px; max-height:80%; }
-  .stage-card.result-mode{ width:88%; max-height:22%; padding:8px 12px; }
+  .stage-card.result-mode{ width:88%; max-height:20%; padding:8px 12px; }
 }
 @media (max-width: 520px){
   .members{ grid-template-columns:1fr; }
@@ -810,6 +872,11 @@ function mkMember(name){
 }
 function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function unitDisplayName(u){
+  if (!u) return '—';
+  if (state.mode === 'individual' && u.members[0]) return u.members[0].name;
+  return u.name;
 }
 
 function normalizeAnswer(s){
@@ -1048,11 +1115,14 @@ function findMember(unitId, memberId){
 function gerarEditor(){
   if (state.mode === 'individual'){
     const n = Math.max(1, Math.min(50, parseInt(document.getElementById('numPlayers').value) || 8));
-    state.units = [{
-      id: uid('u'), name: 'Participantes', color: TEAM_COLORS[0],
-      alive: true, points: 0,
-      members: Array.from({length:n}, (_, i) => mkMember('Participante ' + (i+1)))
-    }];
+    state.units = Array.from({length:n}, (_, i) => ({
+      id: uid('u'),
+      name: 'Participante ' + (i+1),
+      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      alive: true,
+      points: 0,
+      members: [ mkMember('Participante ' + (i+1)) ]
+    }));
   } else {
     const n = Math.max(1, Math.min(10, parseInt(document.getElementById('numTeams').value) || 3));
     state.units = Array.from({length:n}, (_, i) => ({
@@ -1070,17 +1140,17 @@ function gerarEditor(){
 function renderEditor(){
   const host = document.getElementById('editor');
   host.innerHTML = '';
+
   if (state.mode === 'individual'){
-    const u = state.units[0];
     const wrap = document.createElement('div');
     wrap.className = 'tblock';
     wrap.innerHTML = `<div class="tblock-head">
-      <span class="tdot" style="color:${u.color}; background:${u.color}"></span>
-      <div style="font-weight:900; font-size:15px;">Participantes (${u.members.length})</div>
+      <span class="tdot" style="color:${TEAM_COLORS[0]}; background:${TEAM_COLORS[0]}"></span>
+      <div style="font-weight:900; font-size:15px;">Participantes (${state.units.length})</div>
     </div>`;
     const grid = document.createElement('div');
     grid.className = 'members';
-    u.members.forEach(m => grid.appendChild(memberCard(u, m, false)));
+    state.units.forEach(u => grid.appendChild(memberCard(u, u.members[0], false)));
     wrap.appendChild(grid);
     host.appendChild(wrap);
   } else {
@@ -1341,7 +1411,7 @@ function updateTopInfo(){
   document.getElementById('pillRMode').innerHTML = state.roundMode === 'elimination' ? '🕳️ Errou caiu' : '🏆 Pontuação';
   document.getElementById('pillTurn').innerHTML = `Turno <b>${state.turn}</b>`;
   const u = currentUnit();
-  document.getElementById('pillNow').innerHTML = u ? `Vez de <b>${escapeHtml(u.name)}</b>` : '—';
+  document.getElementById('pillNow').innerHTML = u ? `Vez de <b>${escapeHtml(unitDisplayName(u))}</b>` : '—';
 }
 
 function highlightCurrent(){
@@ -1376,7 +1446,6 @@ function renderQuestionUI(){
   const aText = document.getElementById('csAText');
   const stageCard = document.getElementById('stageCard');
 
-  // Garante que o card volte ao modo pergunta
   stageCard.classList.remove('result-mode');
 
   if (!state.currentQuestion){
@@ -1535,7 +1604,7 @@ function startTurn(){
   renderPanel();
 
   const u = currentUnit();
-  showMessage(`Vez de <b>${escapeHtml(u ? u.name : '—')}</b>`);
+  showMessage(`Vez de <b>${escapeHtml(unitDisplayName(u))}</b>`);
   startTimer();
 
   if (state.currentQuestion){
@@ -1568,7 +1637,6 @@ function handleAnswer(unitId, correct, typed, forced){
   state.turnActive = false;
   stopTimer();
 
-  // Feedback visual no input (antes de encolher o card)
   const input = document.getElementById('csInput');
   if (input && !forced && typed){
     input.disabled = true;
@@ -1582,29 +1650,68 @@ function handleAnswer(unitId, correct, typed, forced){
   const arena = document.getElementById('arena');
   const stageCard = document.getElementById('stageCard');
 
-  // Monta a mensagem
-  let msg = '';
+  // --- ACERTO ---
   if (correct){
     u.points += 1;
     highlightUnit(u.id, 'correct');
-    msg = `<span class="g">✓ ${escapeHtml(u.name)} acertou!</span>`;
+    let msg = `<span class="g">✓ ${escapeHtml(unitDisplayName(u))} acertou!</span>`;
     if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
-  } else {
-    if (state.roundMode === 'score'){
-      u.points -= 1;
-      highlightUnit(u.id, 'wrong');
-      msg = `<span class="r">✗ ${escapeHtml(u.name)} errou! −1 ponto</span>`;
-      if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
-    } else {
-      u.alive = false;
-      u.members.forEach(m => { m.alive = false; });
-      msg = `<span class="r">✗ ${escapeHtml(u.name)} errou e caiu!</span>`;
-      if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
-    }
+    showMessage(msg);
+
+    document.getElementById('csSecondary').classList.add('hidden');
+    document.getElementById('csInputWrap').classList.add('hidden');
+    document.getElementById('csQuestion').classList.add('hidden');
+    document.getElementById('csWarn').classList.add('hidden');
+    document.getElementById('csAnswer').classList.add('hidden');
+    stageCard.classList.add('result-mode');
+
+    setTimeout(() => {
+      renderPanel();
+      updateTopInfo();
+      state.turn += 1;
+      nextAlive();
+      updateTopInfo();
+      highlightCurrent();
+      startTurn();
+    }, 1600);
+    return;
   }
+
+  // --- ERRO em modo pontuação (sem cair) ---
+  if (state.roundMode === 'score'){
+    u.points -= 1;
+    highlightUnit(u.id, 'wrong');
+    let msg = `<span class="r">✗ ${escapeHtml(unitDisplayName(u))} errou! −1 ponto</span>`;
+    if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
+    showMessage(msg);
+
+    document.getElementById('csSecondary').classList.add('hidden');
+    document.getElementById('csInputWrap').classList.add('hidden');
+    document.getElementById('csQuestion').classList.add('hidden');
+    document.getElementById('csWarn').classList.add('hidden');
+    document.getElementById('csAnswer').classList.add('hidden');
+    stageCard.classList.add('result-mode');
+
+    setTimeout(() => {
+      renderPanel();
+      updateTopInfo();
+      state.turn += 1;
+      nextAlive();
+      updateTopInfo();
+      highlightCurrent();
+      startTurn();
+    }, 1600);
+    return;
+  }
+
+  // --- ERRO em modo eliminação: cai no buraco ---
+  u.alive = false;
+  u.members.forEach(m => { m.alive = false; });
+  let msg = `<span class="r">✗ ${escapeHtml(unitDisplayName(u))} errou e caiu!</span>`;
+  if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
   showMessage(msg);
 
-  // Esconde a pergunta, encolhe o card pro topo e libera a arena
+  // Encolhe o card pro topo e libera a arena
   document.getElementById('csSecondary').classList.add('hidden');
   document.getElementById('csInputWrap').classList.add('hidden');
   document.getElementById('csQuestion').classList.add('hidden');
@@ -1612,41 +1719,54 @@ function handleAnswer(unitId, correct, typed, forced){
   document.getElementById('csAnswer').classList.add('hidden');
   stageCard.classList.add('result-mode');
 
-  // Se for queda: anima buraco + boneco
-  if (!correct && state.roundMode === 'elimination'){
-    u.members.forEach((m, idx) => {
-      const el = arena.querySelector(`.player[data-member-id="${m.id}"]`);
-      if (!el) return;
-      // 1) Tremor inicial
-      el.classList.add('wrong');
-      setTimeout(() => el.classList.remove('wrong'), 460);
+  // Sequência da queda:
+  //   0ms   → mensagem
+  //   400ms → buraco abre (0.75s)
+  //   900ms → boneco começa a cair (1.35s)
+  //   1900ms → arena treme (impacto)
+  //   2600ms → próximo turno
+  const players = u.members.map(m => arena.querySelector(`.player[data-member-id="${m.id}"]`)).filter(Boolean);
 
-      // 2) Abre o buraco (portinholas deslizam para os lados)
+  // Tremor inicial
+  players.forEach(el => {
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 480);
+  });
+
+  // Abre buraco
+  setTimeout(() => {
+    players.forEach((el, idx) => {
       setTimeout(() => {
         const hole = el.querySelector('.hole');
         if (hole) hole.classList.add('open');
-      }, 300 + idx * 80);
+      }, idx * 90);
+    });
+  }, 400);
 
-      // 3) Boneco cai — depois que as portas já abriram
+  // Boneco cai
+  setTimeout(() => {
+    players.forEach((el, idx) => {
       setTimeout(() => {
         const doll = el.querySelector('.doll');
         if (doll) doll.classList.add('falling');
-      }, 620 + idx * 80);
-
-      // 4) Marca como fora (riscado no nome)
-      setTimeout(() => el.classList.add('out'), 1700 + idx * 80);
+      }, idx * 90);
     });
-  }
+  }, 900);
 
-  // Tempo total para o próximo turno — espera a queda terminar
-  const waitMs = (!correct && state.roundMode === 'elimination') ? 2400 : 1800;
+  // Impacto: arena treme + marca nome riscado
+  setTimeout(() => {
+    arena.classList.add('shake');
+    setTimeout(() => arena.classList.remove('shake'), 600);
+    players.forEach(el => el.classList.add('out'));
+  }, 1900);
 
+  // Próximo turno
   setTimeout(() => {
     renderPanel();
     updateTopInfo();
 
     const alive = state.units.filter(x => x.alive);
-    if (state.roundMode === 'elimination' && alive.length <= 1){
+    if (alive.length <= 1){
       endGame(alive[0] || null);
       return;
     }
@@ -1656,7 +1776,7 @@ function handleAnswer(unitId, correct, typed, forced){
     updateTopInfo();
     highlightCurrent();
     startTurn();
-  }, waitMs);
+  }, 2700);
 }
 
 function nextAlive(){
@@ -1678,19 +1798,19 @@ function endGame(winner){
 
   if (state.roundMode === 'elimination'){
     titleTxt = state.mode === 'team' ? 'EQUIPE VENCEDORA' : 'VENCEDOR';
-    nameTxt = winner ? winner.name : 'Empate';
+    nameTxt = winner ? unitDisplayName(winner) : 'Empate';
     subTxt = winner ? `${winner.points} ponto${winner.points === 1 ? '' : 's'}` : '';
-    showMessage(`<span class="g">🏆 ${escapeHtml(winner ? winner.name : 'Empate')} venceu!</span>`);
+    showMessage(`<span class="g">🏆 ${escapeHtml(winner ? unitDisplayName(winner) : 'Empate')} venceu!</span>`);
   } else {
     const sorted = [...state.units].sort((a,b) => b.points - a.points);
     const top = sorted[0];
     const tie = sorted.filter(x => x.points === top.points).length > 1;
     titleTxt = state.mode === 'team' ? 'EQUIPE VENCEDORA' : 'VENCEDOR';
-    nameTxt = tie ? 'Empate!' : top.name;
+    nameTxt = tie ? 'Empate!' : unitDisplayName(top);
     subTxt = tie
-      ? sorted.filter(x => x.points === top.points).map(x => `${x.name} (${x.points})`).join(' · ')
+      ? sorted.filter(x => x.points === top.points).map(x => `${unitDisplayName(x)} (${x.points})`).join(' · ')
       : `${top.points} ponto${top.points === 1 ? '' : 's'}`;
-    showMessage(`<span class="g">🏆 ${tie ? 'Empate!' : escapeHtml(top.name)}</span>`);
+    showMessage(`<span class="g">🏆 ${tie ? 'Empate!' : escapeHtml(unitDisplayName(top))}</span>`);
   }
 
   const overlay = document.createElement('div');
