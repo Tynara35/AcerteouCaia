@@ -541,4 +541,1188 @@ input,textarea{ font-family:inherit; }
 .panel{
   width:340px; flex:0 0 340px;
   border-left:1px solid var(--line);
- 
+  background:rgba(8,12,22,.7);
+  display:flex; flex-direction:column; min-height:0;
+}
+.panel-head{
+  padding:13px 16px; font-size:12px; font-weight:900; letter-spacing:1.6px;
+  color:var(--gold); text-transform:uppercase;
+  border-bottom:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.panel-list{ flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:6px; }
+
+.prow{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px; border-radius:11px;
+  background:rgba(255,255,255,.035);
+  border:1px solid transparent; transition:.18s;
+}
+.prow:hover{ background:rgba(255,255,255,.075); }
+.prow.ok{ border-color:rgba(37,211,102,.55); background:rgba(37,211,102,.12); }
+.prow.no{ border-color:rgba(255,59,92,.55); background:rgba(255,59,92,.12); }
+.prow.out{ opacity:.42; }
+.prow .dot, .trow .dot{ width:9px; height:9px; border-radius:50%; flex:0 0 9px; }
+.prow .pname, .trow .pname{
+  flex:1; font-size:13.5px; font-weight:700; min-width:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.trow .pname{ font-weight:900; }
+.prow .pscore, .trow .pscore{
+  font-size:12px; font-weight:900; color:var(--gold);
+  background:rgba(255,201,60,.13); padding:2px 8px; border-radius:999px;
+  min-width:32px; text-align:center;
+}
+.prow button, .trow button{
+  width:30px; height:30px; border-radius:9px; border:1px solid var(--line);
+  background:rgba(255,255,255,.05); font-size:14px; font-weight:900;
+  display:grid; place-items:center; transition:.15s; padding:0;
+}
+.prow button.ok, .trow button.ok{ color:var(--green); }
+.prow button.ok:hover, .trow button.ok:hover{ background:rgba(37,211,102,.25); border-color:var(--green); }
+.prow button.no, .trow button.no{ color:var(--red); }
+.prow button.no:hover, .trow button.no:hover{ background:rgba(255,59,92,.25); border-color:var(--red); }
+.prow button:disabled, .trow button:disabled{ opacity:.25; cursor:not-allowed; }
+
+.tgroup{
+  border:1px solid var(--line); border-radius:13px; overflow:hidden;
+  background:rgba(0,0,0,.2);
+}
+.tgroup .trow{
+  display:flex; align-items:center; gap:8px; padding:9px 10px;
+  background:rgba(255,255,255,.05);
+}
+.tmembers{
+  font-size:11.5px; color:var(--muted); padding:7px 11px 9px;
+  line-height:1.5; border-top:1px solid rgba(255,255,255,.05);
+}
+.tgroup.ok{ border-color:rgba(37,211,102,.55); }
+.tgroup.no{ border-color:rgba(255,59,92,.55); }
+.tgroup.out{ opacity:.45; }
+
+@media (max-width: 860px){
+  .game-main{ flex-direction:column; }
+  .panel{ width:100%; flex:0 0 40%; border-left:0; border-top:1px solid var(--line); }
+  .arena-wrap{ flex:1 1 60%; }
+  .topbar{ padding:8px 10px; gap:8px; }
+  .brand{ font-size:15px; }
+  .topactions .btn{ padding:8px 10px; font-size:12px; }
+  .pill{ font-size:11px; padding:5px 9px; }
+  .stage-card{ width:94%; padding:12px 14px; max-height:80%; }
+  .stage-card.result-mode{ width:88%; max-height:22%; padding:8px 12px; }
+}
+@media (max-width: 520px){
+  .members{ grid-template-columns:1fr; }
+  .qty-row{ flex-direction:column; align-items:stretch; }
+  .field input[type=number]{ width:100%; }
+  .topactions{ margin-left:0; width:100%; }
+  .sc-input{ padding:12px 10px; font-size:15px; }
+  .sc-btn.confirm{ padding:0 14px; font-size:13px; }
+  .sc-actions .sc-btn{ padding:7px 10px; font-size:11.5px; }
+}
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <h1 class="logo">ACERTE <span>OU</span> CAIA</h1>
+  <p class="sub">Monte o seu programa • participantes na roda • quem errar cai no buraco</p>
+
+  <section class="card">
+    <h2>1 · Modo de jogo</h2>
+    <div class="segmented" id="modeSeg">
+      <button data-mode="individual" class="active">👤 Cada um por si</button>
+      <button data-mode="team">👥 Equipes</button>
+    </div>
+    <p class="hint" id="modeHint">Até 50 participantes individuais, todos na roda.</p>
+  </section>
+
+  <section class="card">
+    <h2>2 · Formato das rodadas</h2>
+    <div class="segmented" id="roundSeg">
+      <button data-rmode="elimination" class="active">🕳️ Errou, caiu!</button>
+      <button data-rmode="score">🏆 Por pontuação</button>
+    </div>
+    <p class="hint" id="roundHint">Quem errar tem o buraco aberto e sai do jogo.</p>
+  </section>
+
+  <section class="card">
+    <h2>3 · Quantidade</h2>
+    <div class="qty-row" id="qtyIndividual">
+      <div class="field">
+        <label>Participantes (1 a 50)</label>
+        <input type="number" id="numPlayers" min="1" max="50" value="8">
+      </div>
+      <button class="btn primary" onclick="gerarEditor()">Gerar participantes →</button>
+    </div>
+    <div class="qty-row hidden" id="qtyTeam">
+      <div class="field">
+        <label>Número de equipes (1 a 10)</label>
+        <input type="number" id="numTeams" min="1" max="10" value="3">
+      </div>
+      <button class="btn primary" onclick="gerarEditor()">Gerar equipes →</button>
+    </div>
+    <p class="hint" id="qtyHint">Depois de gerar, você poderá editar nomes, fotos e gênero.</p>
+  </section>
+
+  <section class="card">
+    <h2>4 · Cronômetro por turno</h2>
+    <div class="qty-row">
+      <div class="field">
+        <label>Duração em segundos</label>
+        <input type="number" id="timerSeconds" min="5" max="300" value="30">
+      </div>
+      <label class="toggle on" id="timerToggle" style="flex:1; min-width:220px;">
+        <input type="checkbox" id="timerEnabled" checked>
+        <span>⏱️ Ativar cronômetro em cada turno</span>
+      </label>
+    </div>
+    <p class="hint">Se o tempo acabar sem resposta, o turno é marcado como erro automaticamente.</p>
+  </section>
+
+  <section class="card">
+    <h2>5 · Banco de perguntas</h2>
+    <label class="toggle on" id="useQToggle" style="margin-bottom:14px;">
+      <input type="checkbox" id="useQuestions" checked>
+      <span>❓ Sortear uma pergunta do banco a cada turno</span>
+    </label>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+      <button class="btn primary" onclick="addQuestion()">+ Adicionar pergunta</button>
+      <button class="btn" onclick="document.getElementById('importQ').click()">📥 Importar JSON</button>
+      <button class="btn" onclick="exportQuestions()">📤 Exportar JSON</button>
+      <button class="btn ghost" onclick="loadExampleQuestions()">Exemplo</button>
+      <button class="btn ghost danger" onclick="clearQuestions()">Limpar</button>
+      <input type="file" id="importQ" accept=".json,application/json" style="display:none">
+    </div>
+    <div class="qcol-head">
+      <span>#</span><span>Pergunta / Resposta</span><span></span>
+    </div>
+    <div id="questionList" style="display:flex; flex-direction:column; gap:8px; max-height:360px; overflow-y:auto; padding-right:4px;"></div>
+    <div class="hint" id="qCount">0 perguntas no banco</div>
+    <p class="hint" style="margin-top:8px;">
+      💡 <b>Dica:</b> aceite várias respostas certas separando com <code style="color:#ffd66b;">|</code>. Ex: <code style="color:#ffd66b;">Brasília|DF|Distrito Federal</code><br>
+      O sistema ignora acentos e maiúsculas/minúsculas na comparação.
+    </p>
+  </section>
+
+  <section class="card hidden" id="editorCard">
+    <h2>6 · Participantes</h2>
+    <p class="hint" style="margin-bottom:14px; margin-top:-6px;">
+      Clique no boneco para trocar a foto. Use ♂/♀ para mudar o estilo.
+    </p>
+    <div id="editor"></div>
+    <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn primary" style="flex:1; padding:16px; font-size:16px; letter-spacing:1px;" onclick="iniciarJogo()">▶ Iniciar jogo</button>
+      <button class="btn ghost" onclick="document.getElementById('editorCard').classList.add('hidden')">Fechar</button>
+    </div>
+  </section>
+</div>
+
+<div id="game" class="hidden">
+  <div class="topbar">
+    <div class="brand">ACERTE <span>OU</span> CAIA</div>
+    <div class="topinfo">
+      <div class="pill" id="pillMode">—</div>
+      <div class="pill" id="pillRMode">—</div>
+      <div class="pill" id="pillTurn">—</div>
+      <div class="pill" id="pillNow">—</div>
+    </div>
+    <div class="topactions">
+      <button class="btn ghost" onclick="encerrar()">🏁 Encerrar</button>
+      <button class="btn danger" onclick="if(confirm('Reiniciar a partida?')) location.reload()">↻ Reiniciar</button>
+    </div>
+  </div>
+  <div class="game-main">
+    <div class="arena-wrap" id="arenaWrap">
+      <div class="arena" id="arena"></div>
+      <div class="stage-card" id="stageCard">
+        <div class="sc-top">
+          <span class="sc-turn">TURNO <b id="csTurn">1</b></span>
+          <span class="sc-timer hidden" id="csTimer">30<span class="sc-timer-s">s</span></span>
+        </div>
+        <div class="sc-msg" id="csMsg">Preparando…</div>
+
+        <div class="sc-question hidden" id="csQuestion">
+          <div class="sc-label">PERGUNTA</div>
+          <div class="sc-qtext" id="csQText"></div>
+        </div>
+
+        <div class="sc-input-wrap hidden" id="csInputWrap">
+          <input type="text" class="sc-input" id="csInput"
+                 placeholder="Digite a resposta e aperte Enter…"
+                 autocomplete="off" autocorrect="off" autocapitalize="off"
+                 spellcheck="false" inputmode="text" enterkeyhint="done">
+          <button class="sc-btn confirm" id="scConfirm">✓ Confirmar</button>
+        </div>
+
+        <div class="sc-warn hidden" id="csWarn">
+          ⚠️ Nenhuma pergunta cadastrada. Adicione perguntas em <b>Banco de perguntas</b> ou use os botões abaixo para confirmar manualmente.
+        </div>
+
+        <div class="sc-answer hidden" id="csAnswer">
+          <div class="sc-label green">RESPOSTA CORRETA</div>
+          <div class="sc-atext" id="csAText"></div>
+        </div>
+
+        <div class="sc-actions hidden" id="csSecondary">
+          <button class="sc-btn force-ok" id="scForceOk">Forçar ✓</button>
+          <button class="sc-btn force-no" id="scForceNo">Forçar ✗</button>
+          <button class="sc-btn" id="scReveal">👁 Resposta</button>
+          <button class="sc-btn" id="scPause">⏸ Pausar</button>
+        </div>
+      </div>
+    </div>
+    <aside class="panel">
+      <div class="panel-head">
+        <span id="panelTitle">Participantes</span>
+        <span id="panelCount">0</span>
+      </div>
+      <div class="panel-list" id="panelList"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const state = {
+  mode: 'individual',
+  roundMode: 'elimination',
+  units: [],
+  currentIdx: 0,
+  turn: 1,
+  ended: false,
+  questions: [],
+  useQuestions: true,
+  currentQuestion: null,
+  answerRevealed: false,
+  timerEnabled: true,
+  timerDuration: 30,
+  timerRemaining: 0,
+  timerPaused: false,
+  turnActive: false
+};
+
+let _idc = 0;
+const uid = (p='id') => p + (++_idc) + '_' + Math.random().toString(36).slice(2,6);
+const TEAM_COLORS = ['#ff3b5c','#ff8a3c','#ffc93c','#25d366','#3ba7ff','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6'];
+
+function mkMember(name){
+  return { id: uid('m'), name: name || 'Sem nome', gender: 'male', photo: null, alive: true };
+}
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function normalizeAnswer(s){
+  return String(s ?? '')
+    .toLowerCase()
+    .trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[.,!?;:'"()\[\]{}\-–—_]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function checkTypedAnswer(typed, correctRaw){
+  const t = normalizeAnswer(typed);
+  if (!t) return false;
+  const alts = String(correctRaw).split('|').map(a => normalizeAnswer(a)).filter(Boolean);
+  if (!alts.length) return false;
+  return alts.includes(t);
+}
+
+function svgAvatar(gender, photoUrl, color){
+  const isF = gender === 'female';
+  const id = uid('clip');
+  const hair = isF ? '#3b2314' : '#1f1408';
+  const skin = '#f3c9a3';
+  const skinShade = '#e0b28c';
+
+  const hairBack = isF ? `
+    <path d="M18 44 Q16 4 50 4 Q84 4 82 44 L82 86 Q76 78 78 52 L78 36 Q76 20 50 20 Q24 20 22 36 L22 52 Q24 78 18 86 Z" fill="${hair}"/>
+  ` : '';
+  const body = isF ? `
+    <path d="M50 66 Q32 70 28 116 L72 116 Q68 70 50 66 Z" fill="${color}"/>
+    <path d="M50 66 Q40 70 38 116 L50 116 Z" fill="rgba(255,255,255,.10)"/>
+  ` : `
+    <path d="M50 66 Q28 70 24 116 L76 116 Q72 70 50 66 Z" fill="${color}"/>
+    <path d="M50 66 Q40 70 36 116 L50 116 Z" fill="rgba(255,255,255,.10)"/>
+  `;
+  const headBase = `<circle cx="50" cy="40" r="28" fill="${skin}"/>`;
+  const headShade = `<path d="M22 40 Q22 68 50 68 Q78 68 78 40 Q78 62 50 62 Q22 62 22 40 Z" fill="${skinShade}" opacity=".45"/>`;
+  const face = photoUrl
+    ? `<image href="${photoUrl}" x="22" y="12" width="56" height="56" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>`
+    : `<g>
+        <circle cx="40" cy="38" r="3" fill="#1a1a1a"/>
+        <circle cx="60" cy="38" r="3" fill="#1a1a1a"/>
+        <circle cx="41" cy="37" r="1" fill="#fff"/>
+        <circle cx="61" cy="37" r="1" fill="#fff"/>
+        <path d="M44 50 Q50 55 56 50" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      </g>`;
+  const hairFront = isF ? `
+    <path d="M22 40 Q20 12 50 12 Q80 12 78 40 Q76 26 62 24 Q56 30 50 30 Q44 30 38 24 Q24 26 22 40 Z" fill="${hair}"/>
+  ` : `
+    <path d="M22 36 Q22 10 50 10 Q78 10 78 36 Q76 22 62 22 Q56 28 50 28 Q44 28 38 22 Q24 22 22 36 Z" fill="${hair}"/>
+  `;
+  return `<svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+    <defs><clipPath id="${id}"><circle cx="50" cy="40" r="26"/></clipPath></defs>
+    ${hairBack}${body}${headBase}
+    ${photoUrl ? '' : headShade}
+    ${face}${hairFront}
+    <circle cx="50" cy="40" r="28" fill="none" stroke="rgba(0,0,0,.22)" stroke-width="1.5"/>
+  </svg>`;
+}
+
+document.querySelectorAll('#modeSeg button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#modeSeg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.mode = btn.dataset.mode;
+    const ind = document.getElementById('qtyIndividual');
+    const tm  = document.getElementById('qtyTeam');
+    const hint = document.getElementById('modeHint');
+    const qHint = document.getElementById('qtyHint');
+    if (state.mode === 'individual'){
+      ind.classList.remove('hidden'); tm.classList.add('hidden');
+      hint.textContent = 'Até 50 participantes individuais, todos na roda.';
+      qHint.textContent = 'Depois de gerar, você poderá editar nomes, fotos e gênero.';
+    } else {
+      ind.classList.add('hidden'); tm.classList.remove('hidden');
+      hint.textContent = 'Até 10 equipes — adicione quantos membros quiser em cada uma.';
+      qHint.textContent = 'Depois de gerar, você poderá renomear cada equipe e cada membro.';
+    }
+  });
+});
+
+document.querySelectorAll('#roundSeg button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#roundSeg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.roundMode = btn.dataset.rmode;
+    const hint = document.getElementById('roundHint');
+    hint.textContent = state.roundMode === 'elimination'
+      ? 'Quem errar tem o buraco aberto e sai do jogo.'
+      : 'Quem acertar ganha 1 ponto, quem errar perde 1 ponto. Ninguém cai.';
+  });
+});
+
+function bindToggle(id){
+  const cb = document.getElementById(id);
+  const lab = cb.closest('.toggle');
+  const upd = () => lab.classList.toggle('on', cb.checked);
+  cb.addEventListener('change', upd);
+  upd();
+}
+bindToggle('timerEnabled');
+bindToggle('useQuestions');
+
+function renderQuestionList(){
+  const host = document.getElementById('questionList');
+  host.innerHTML = '';
+  state.questions.forEach((qq, i) => {
+    const row = document.createElement('div');
+    row.className = 'qrow';
+    row.innerHTML = `
+      <span class="qnum">${i+1}</span>
+      <div class="qfields">
+        <input class="qQ" type="text" value="${escapeHtml(qq.q)}" placeholder="Pergunta…" maxlength="300">
+        <input class="qA" type="text" value="${escapeHtml(qq.a)}" placeholder="Resposta (use | para alternativas)…" maxlength="300">
+      </div>
+      <button class="remove" title="Remover">×</button>
+    `;
+    row.querySelector('.qQ').addEventListener('input', e => { qq.q = e.target.value; });
+    row.querySelector('.qA').addEventListener('input', e => { qq.a = e.target.value; });
+    row.querySelector('.remove').addEventListener('click', () => {
+      state.questions.splice(i, 1);
+      renderQuestionList();
+    });
+    host.appendChild(row);
+  });
+  document.getElementById('qCount').textContent =
+    state.questions.length + ' pergunta' + (state.questions.length === 1 ? '' : 's') + ' no banco';
+}
+
+function addQuestion(){
+  state.questions.push({ id: uid('q'), q: '', a: '', used: false });
+  renderQuestionList();
+  const host = document.getElementById('questionList');
+  const rows = host.querySelectorAll('.qrow .qQ');
+  if (rows.length) rows[rows.length - 1].focus();
+  host.scrollTop = host.scrollHeight;
+}
+
+function clearQuestions(){
+  if (!state.questions.length) return;
+  if (!confirm('Apagar todas as ' + state.questions.length + ' perguntas?')) return;
+  state.questions = [];
+  renderQuestionList();
+}
+
+function exportQuestions(){
+  const data = state.questions.map(q => ({ q: q.q, a: q.a }));
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'perguntas-acerte-ou-caia.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('importQ').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const parsed = JSON.parse(r.result);
+      let arr = [];
+      if (Array.isArray(parsed)) arr = parsed;
+      else if (parsed && Array.isArray(parsed.questions)) arr = parsed.questions;
+      else if (parsed && Array.isArray(parsed.perguntas)) arr = parsed.perguntas;
+      else throw new Error('Formato não reconhecido');
+
+      const imported = [];
+      arr.forEach(item => {
+        if (!item) return;
+        const q = item.q ?? item.pergunta ?? item.question ?? '';
+        const a = item.a ?? item.resposta ?? item.answer ?? '';
+        if (String(q).trim() && String(a).trim()){
+          imported.push({ id: uid('q'), q: String(q).trim(), a: String(a).trim(), used: false });
+        }
+      });
+
+      if (!imported.length) throw new Error('Nenhuma pergunta válida encontrada');
+
+      if (state.questions.length){
+        const replace = confirm(
+          `Importadas ${imported.length} pergunta(s).\n\n` +
+          `OK = substituir as existentes\nCancelar = adicionar às existentes`
+        );
+        state.questions = replace ? imported : state.questions.concat(imported);
+      } else {
+        state.questions = imported;
+      }
+      renderQuestionList();
+    } catch(err){
+      alert('Erro ao importar: ' + err.message);
+    } finally {
+      e.target.value = '';
+    }
+  };
+  r.readAsText(f);
+});
+
+function loadExampleQuestions(){
+  const exemplo = [
+    { q: 'Qual é a capital do Brasil?', a: 'Brasília|DF' },
+    { q: 'Quantos lados tem um hexágono?', a: '6|seis' },
+    { q: 'Quem pintou a Mona Lisa?', a: 'Leonardo da Vinci' },
+    { q: 'Qual é o maior planeta do Sistema Solar?', a: 'Júpiter' },
+    { q: 'Em que ano o Brasil foi descoberto?', a: '1500' },
+    { q: 'Qual é o metal líquido à temperatura ambiente?', a: 'Mercúrio' },
+    { q: 'Quantos jogadores tem um time de futebol em campo?', a: '11|onze' },
+    { q: 'Qual é o menor país do mundo?', a: 'Vaticano' },
+    { q: 'Quem escreveu "Dom Casmurro"?', a: 'Machado de Assis' },
+    { q: 'Qual é o rio mais extenso do mundo?', a: 'Amazonas' },
+    { q: 'Quantas cores tem o arco-íris?', a: '7|sete' },
+    { q: 'Qual é o oceano mais profundo?', a: 'Pacífico' },
+    { q: 'Quem descobriu a penicilina?', a: 'Alexander Fleming' },
+    { q: 'Qual é a fórmula química da água?', a: 'H2O' },
+    { q: 'Qual é o idioma mais falado do mundo?', a: 'Mandarim' }
+  ].map(x => ({ id: uid('q'), q: x.q, a: x.a, used: false }));
+
+  if (state.questions.length && !confirm('Substituir as perguntas atuais pelo exemplo?')) return;
+  state.questions = exemplo;
+  renderQuestionList();
+}
+
+renderQuestionList();
+
+function findUnit(id){ return state.units.find(u => u.id === id); }
+function findMember(unitId, memberId){
+  const u = findUnit(unitId);
+  return u ? u.members.find(m => m.id === memberId) : null;
+}
+
+function gerarEditor(){
+  if (state.mode === 'individual'){
+    const n = Math.max(1, Math.min(50, parseInt(document.getElementById('numPlayers').value) || 8));
+    state.units = [{
+      id: uid('u'), name: 'Participantes', color: TEAM_COLORS[0],
+      alive: true, points: 0,
+      members: Array.from({length:n}, (_, i) => mkMember('Participante ' + (i+1)))
+    }];
+  } else {
+    const n = Math.max(1, Math.min(10, parseInt(document.getElementById('numTeams').value) || 3));
+    state.units = Array.from({length:n}, (_, i) => ({
+      id: uid('u'), name: 'Equipe ' + (i+1),
+      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      alive: true, points: 0,
+      members: Array.from({length:3}, (_, j) => mkMember('Membro ' + (j+1)))
+    }));
+  }
+  renderEditor();
+  document.getElementById('editorCard').classList.remove('hidden');
+  setTimeout(() => document.getElementById('editorCard').scrollIntoView({behavior:'smooth', block:'start'}), 50);
+}
+
+function renderEditor(){
+  const host = document.getElementById('editor');
+  host.innerHTML = '';
+  if (state.mode === 'individual'){
+    const u = state.units[0];
+    const wrap = document.createElement('div');
+    wrap.className = 'tblock';
+    wrap.innerHTML = `<div class="tblock-head">
+      <span class="tdot" style="color:${u.color}; background:${u.color}"></span>
+      <div style="font-weight:900; font-size:15px;">Participantes (${u.members.length})</div>
+    </div>`;
+    const grid = document.createElement('div');
+    grid.className = 'members';
+    u.members.forEach(m => grid.appendChild(memberCard(u, m, false)));
+    wrap.appendChild(grid);
+    host.appendChild(wrap);
+  } else {
+    state.units.forEach(u => {
+      const wrap = document.createElement('div');
+      wrap.className = 'tblock';
+      const head = document.createElement('div');
+      head.className = 'tblock-head';
+      head.innerHTML = `
+        <span class="tdot" style="color:${u.color}; background:${u.color}"></span>
+        <input class="tname" type="text" value="${escapeHtml(u.name)}" data-unit-id="${u.id}" maxlength="30">
+        <input type="color" value="${u.color}" data-unit-id="${u.id}" class="tcolor">
+        <button class="tadd" data-action="add-member" data-unit-id="${u.id}">+ Membro</button>
+        <span style="color:var(--muted); font-size:12px; font-weight:800;">${u.members.length} membro${u.members.length===1?'':'s'}</span>
+      `;
+      wrap.appendChild(head);
+      const grid = document.createElement('div');
+      grid.className = 'members';
+      u.members.forEach(m => grid.appendChild(memberCard(u, m, true)));
+      wrap.appendChild(grid);
+      host.appendChild(wrap);
+    });
+  }
+}
+
+function memberCard(unit, member, removable){
+  const card = document.createElement('div');
+  card.className = 'pcard';
+  card.dataset.unitId = unit.id;
+  card.dataset.memberId = member.id;
+  card.innerHTML = `
+    <div class="preview" data-action="photo" data-unit-id="${unit.id}" data-member-id="${member.id}" title="Trocar foto">
+      ${svgAvatar(member.gender, member.photo, unit.color)}
+    </div>
+    <div class="fields">
+      <input class="pname" type="text" value="${escapeHtml(member.name)}" data-unit-id="${unit.id}" data-member-id="${member.id}" maxlength="22" placeholder="Nome">
+      <div class="gseg">
+        <button data-action="gender" data-gender="male" data-unit-id="${unit.id}" data-member-id="${member.id}" class="${member.gender==='male'?'active':''}">♂ Masc</button>
+        <button data-action="gender" data-gender="female" data-unit-id="${unit.id}" data-member-id="${member.id}" class="${member.gender==='female'?'active':''}">♀ Fem</button>
+      </div>
+    </div>
+    ${removable ? `<button class="remove" data-action="remove-member" data-unit-id="${unit.id}" data-member-id="${member.id}" title="Remover">×</button>` : ''}
+  `;
+  return card;
+}
+
+document.getElementById('editor').addEventListener('click', e => {
+  const t = e.target.closest('[data-action]');
+  if (!t) return;
+  const action = t.dataset.action;
+  const unitId = t.dataset.unitId;
+  const memberId = t.dataset.memberId;
+
+  if (action === 'photo'){
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*';
+    inp.onchange = () => {
+      const f = inp.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        const m = findMember(unitId, memberId);
+        if (m){ m.photo = r.result; renderEditor(); }
+      };
+      r.readAsDataURL(f);
+    };
+    inp.click();
+  } else if (action === 'gender'){
+    const m = findMember(unitId, memberId);
+    if (m){ m.gender = t.dataset.gender; renderEditor(); }
+  } else if (action === 'add-member'){
+    const u = findUnit(unitId);
+    if (u && u.members.length < 50){
+      u.members.push(mkMember('Membro ' + (u.members.length+1)));
+      renderEditor();
+    }
+  } else if (action === 'remove-member'){
+    const u = findUnit(unitId);
+    if (u && u.members.length > 1){
+      u.members = u.members.filter(m => m.id !== memberId);
+      renderEditor();
+    }
+  }
+});
+
+document.getElementById('editor').addEventListener('input', e => {
+  const el = e.target;
+  if (el.matches('input.pname')){
+    const m = findMember(el.dataset.unitId, el.dataset.memberId);
+    if (m) m.name = el.value || 'Sem nome';
+  } else if (el.matches('input.tname')){
+    const u = findUnit(el.dataset.unitId);
+    if (u) u.name = el.value || 'Equipe';
+  } else if (el.matches('input.tcolor')){
+    const u = findUnit(el.dataset.unitId);
+    if (u){
+      u.color = el.value;
+      const block = el.closest('.tblock');
+      block.querySelectorAll('.preview').forEach(pv => {
+        const m = findMember(u.id, pv.dataset.memberId);
+        if (m) pv.innerHTML = svgAvatar(m.gender, m.photo, u.color);
+      });
+      const dot = block.querySelector('.tdot');
+      if (dot){ dot.style.color = u.color; dot.style.background = u.color; }
+    }
+  }
+});
+
+function iniciarJogo(){
+  state.timerEnabled = document.getElementById('timerEnabled').checked;
+  state.timerDuration = Math.max(0, parseInt(document.getElementById('timerSeconds').value) || 0);
+  state.useQuestions = document.getElementById('useQuestions').checked;
+
+  state.units.forEach(u => {
+    u.alive = true; u.points = 0;
+    u.members.forEach(m => m.alive = true);
+  });
+  state.questions.forEach(q => q.used = false);
+  state.currentIdx = 0;
+  state.turn = 1;
+  state.ended = false;
+
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+
+  renderArena();
+  renderPanel();
+  updateTopInfo();
+  requestAnimationFrame(() => { layoutArena(); });
+  setTimeout(layoutArena, 60);
+
+  startTurn();
+}
+
+function renderArena(){
+  const arena = document.getElementById('arena');
+  arena.innerHTML = '';
+  state.units.forEach(u => {
+    u.members.forEach(m => {
+      const el = document.createElement('div');
+      el.className = 'player';
+      el.dataset.unitId = u.id;
+      el.dataset.memberId = m.id;
+      el.innerHTML = `
+        <div class="pscale">
+          <div class="nameplate" style="--nc:${u.color}">${escapeHtml(m.name)}</div>
+          <div class="stage">
+            <div class="doll">${svgAvatar(m.gender, m.photo, u.color)}</div>
+            <div class="hole">
+              <div class="hole-dark"></div>
+              <div class="door dl"></div>
+              <div class="door dr"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      arena.appendChild(el);
+    });
+  });
+}
+
+function layoutArena(){
+  const arena = document.getElementById('arena');
+  const wrap = arena.parentElement;
+  const r = wrap.getBoundingClientRect();
+  const size = Math.max(240, Math.min(r.width, r.height) - 24);
+  arena.style.width = size + 'px';
+  arena.style.height = size + 'px';
+
+  const baseW = Math.max(30, Math.min(84, size * 0.082));
+  arena.style.setProperty('--w', baseW.toFixed(1) + 'px');
+
+  const players = [...arena.querySelectorAll('.player')];
+  const n = players.length;
+  if (!n) return;
+
+  const radius = 0.33;
+  players.forEach((p, i) => {
+    const ang = (i / n) * Math.PI * 2 - Math.PI / 2;
+    const cosA = Math.cos(ang), sinA = Math.sin(ang);
+    const cx = 50 + cosA * radius * 100;
+    const cy = 50 + sinA * radius * 100 * 0.86;
+    p.style.left = cx + '%';
+    p.style.top = cy + '%';
+    const s = 0.72 + (sinA + 1) * 0.15;
+    p.style.setProperty('--s', s.toFixed(3));
+    p.style.zIndex = 100 + Math.round(sinA * 60);
+  });
+}
+
+window.addEventListener('resize', () => {
+  if (!document.getElementById('game').classList.contains('hidden')) layoutArena();
+});
+
+function renderPanel(){
+  const list = document.getElementById('panelList');
+  const title = document.getElementById('panelTitle');
+  const count = document.getElementById('panelCount');
+  list.innerHTML = '';
+
+  title.textContent = state.mode === 'individual' ? 'Participantes' : 'Equipes';
+  count.textContent = state.units.filter(u => u.alive).length + '/' + state.units.length;
+
+  state.units.forEach(u => {
+    if (state.mode === 'individual'){
+      const m = u.members[0];
+      const row = document.createElement('div');
+      row.className = 'prow' + (u.alive ? '' : ' out');
+      row.dataset.unitId = u.id;
+      row.innerHTML = `
+        <span class="dot" style="background:${u.color}"></span>
+        <span class="pname">${escapeHtml(m.name)}</span>
+        <span class="pscore">${u.points}</span>
+        <button class="ok" data-act="ok" data-unit="${u.id}" ${u.alive && !state.ended && state.turnActive ? '' : 'disabled'} title="Forçar acerto">✓</button>
+        <button class="no" data-act="no" data-unit="${u.id}" ${u.alive && !state.ended && state.turnActive ? '' : 'disabled'} title="Forçar erro">✗</button>
+      `;
+      list.appendChild(row);
+    } else {
+      const g = document.createElement('div');
+      g.className = 'tgroup' + (u.alive ? '' : ' out');
+      g.dataset.unitId = u.id;
+      const membersTxt = u.members.map(m => escapeHtml(m.name)).join(' · ');
+      g.innerHTML = `
+        <div class="trow">
+          <span class="dot" style="background:${u.color}"></span>
+          <span class="pname">${escapeHtml(u.name)}</span>
+          <span class="pscore">${u.points}</span>
+          <button class="ok" data-act="ok" data-unit="${u.id}" ${u.alive && !state.ended && state.turnActive ? '' : 'disabled'} title="Forçar acerto">✓</button>
+          <button class="no" data-act="no" data-unit="${u.id}" ${u.alive && !state.ended && state.turnActive ? '' : 'disabled'} title="Forçar erro">✗</button>
+        </div>
+        <div class="tmembers">${membersTxt}</div>
+      `;
+      list.appendChild(g);
+    }
+  });
+}
+
+document.getElementById('panelList').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  const unitId = b.dataset.unit;
+  const ok = b.dataset.act === 'ok';
+  handleAnswer(unitId, ok, null, true);
+});
+
+let timerInterval = null;
+
+function currentUnit(){ return state.units[state.currentIdx] || null; }
+
+function showMessage(html){
+  const el = document.getElementById('csMsg');
+  if (el) el.innerHTML = html;
+  const t = document.getElementById('csTurn');
+  if (t) t.textContent = state.turn;
+}
+
+function updateTopInfo(){
+  document.getElementById('pillMode').innerHTML = state.mode === 'individual' ? '👤 Individual' : '👥 Equipes';
+  document.getElementById('pillRMode').innerHTML = state.roundMode === 'elimination' ? '🕳️ Errou caiu' : '🏆 Pontuação';
+  document.getElementById('pillTurn').innerHTML = `Turno <b>${state.turn}</b>`;
+  const u = currentUnit();
+  document.getElementById('pillNow').innerHTML = u ? `Vez de <b>${escapeHtml(u.name)}</b>` : '—';
+}
+
+function highlightCurrent(){
+  document.querySelectorAll('.player.picked').forEach(el => el.classList.remove('picked'));
+  const u = currentUnit();
+  if (!u || !u.alive) return;
+  document.querySelectorAll(`.player[data-unit-id="${u.id}"]`).forEach(el => el.classList.add('picked'));
+}
+
+function drawQuestion(){
+  if (!state.useQuestions || !state.questions.length) return null;
+  let available = state.questions.filter(q => !q.used && q.q.trim() && q.a.trim());
+  if (!available.length){
+    state.questions.forEach(q => q.used = false);
+    available = state.questions.filter(q => q.q.trim() && q.a.trim());
+  }
+  if (!available.length) return null;
+  const q = available[Math.floor(Math.random() * available.length)];
+  q.used = true;
+  return q;
+}
+
+function renderQuestionUI(){
+  const wrap = document.getElementById('csQuestion');
+  const ans = document.getElementById('csAnswer');
+  const inputWrap = document.getElementById('csInputWrap');
+  const warn = document.getElementById('csWarn');
+  const secondary = document.getElementById('csSecondary');
+  const input = document.getElementById('csInput');
+  const confirmBtn = document.getElementById('scConfirm');
+  const qText = document.getElementById('csQText');
+  const aText = document.getElementById('csAText');
+  const stageCard = document.getElementById('stageCard');
+
+  // Garante que o card volte ao modo pergunta
+  stageCard.classList.remove('result-mode');
+
+  if (!state.currentQuestion){
+    wrap.classList.add('hidden');
+    ans.classList.add('hidden');
+    inputWrap.classList.add('hidden');
+    warn.classList.remove('hidden');
+    secondary.classList.remove('hidden');
+    updateSecondary();
+    return;
+  }
+
+  wrap.classList.remove('hidden');
+  warn.classList.add('hidden');
+  qText.textContent = state.currentQuestion.q;
+  if (state.answerRevealed){
+    ans.classList.remove('hidden');
+    aText.textContent = state.currentQuestion.a;
+  } else {
+    ans.classList.add('hidden');
+  }
+
+  if (state.turnActive && !state.answerRevealed){
+    inputWrap.classList.remove('hidden');
+    input.classList.remove('ok','no');
+    input.disabled = false;
+    input.value = '';
+    confirmBtn.disabled = false;
+  } else if (state.turnActive && state.answerRevealed){
+    inputWrap.classList.remove('hidden');
+    input.disabled = true;
+    confirmBtn.disabled = true;
+  } else {
+    inputWrap.classList.add('hidden');
+  }
+
+  secondary.classList.remove('hidden');
+  updateSecondary();
+}
+
+function updateSecondary(){
+  const reveal = document.getElementById('scReveal');
+  const pause = document.getElementById('scPause');
+  const fOk = document.getElementById('scForceOk');
+  const fNo = document.getElementById('scForceNo');
+  const active = state.turnActive && !state.ended;
+
+  reveal.disabled = !active || state.answerRevealed || !state.currentQuestion;
+  pause.disabled = !active || !state.timerEnabled || state.timerDuration <= 0;
+  pause.textContent = state.timerPaused ? '▶ Continuar' : '⏸ Pausar';
+  fOk.disabled = !active;
+  fNo.disabled = !active;
+}
+
+function confirmTyped(){
+  if (!state.turnActive) return;
+  if (!state.currentQuestion) return;
+  const input = document.getElementById('csInput');
+  const typed = input.value.trim();
+  if (!typed){
+    input.classList.add('no');
+    setTimeout(() => input.classList.remove('no'), 500);
+    return;
+  }
+  const isCorrect = checkTypedAnswer(typed, state.currentQuestion.a);
+  const u = currentUnit();
+  if (!u) return;
+  handleAnswer(u.id, isCorrect, typed, false);
+}
+
+function forceAnswer(correct){
+  if (!state.turnActive) return;
+  const u = currentUnit();
+  if (!u) return;
+  handleAnswer(u.id, correct, null, true);
+}
+
+document.getElementById('scConfirm').addEventListener('click', confirmTyped);
+document.getElementById('scForceOk').addEventListener('click', () => forceAnswer(true));
+document.getElementById('scForceNo').addEventListener('click', () => forceAnswer(false));
+document.getElementById('scReveal').addEventListener('click', revealAnswer);
+document.getElementById('scPause').addEventListener('click', togglePause);
+
+document.getElementById('csInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter'){
+    e.preventDefault();
+    confirmTyped();
+  }
+});
+
+function revealAnswer(){
+  if (!state.currentQuestion || state.answerRevealed) return;
+  state.answerRevealed = true;
+  renderQuestionUI();
+}
+
+function startTimer(){
+  stopTimer();
+  const el = document.getElementById('csTimer');
+  if (!state.timerEnabled || state.timerDuration <= 0){
+    el.classList.add('hidden');
+    return;
+  }
+  state.timerRemaining = state.timerDuration;
+  state.timerPaused = false;
+  el.classList.remove('hidden');
+  updateTimerDisplay();
+  timerInterval = setInterval(tickTimer, 1000);
+}
+
+function tickTimer(){
+  if (state.timerPaused) return;
+  state.timerRemaining--;
+  updateTimerDisplay();
+  if (state.timerRemaining <= 0){
+    stopTimer();
+    onTimeOut();
+  }
+}
+
+function stopTimer(){
+  if (timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerDisplay(){
+  const el = document.getElementById('csTimer');
+  if (!el) return;
+  el.innerHTML = `${state.timerRemaining}<span class="sc-timer-s">s</span>`;
+  el.classList.toggle('warn', state.timerRemaining <= 10 && state.timerRemaining > 0 && !state.timerPaused);
+  el.classList.toggle('paused', state.timerPaused);
+}
+
+function togglePause(){
+  if (!state.turnActive) return;
+  if (!state.timerEnabled || state.timerDuration <= 0) return;
+  state.timerPaused = !state.timerPaused;
+  updateSecondary();
+  updateTimerDisplay();
+}
+
+function onTimeOut(){
+  if (!state.turnActive) return;
+  showMessage(`<span class="r">⏰ Tempo esgotado!</span>`);
+  const u = currentUnit();
+  if (u) handleAnswer(u.id, false, null, true);
+}
+
+function startTurn(){
+  if (state.ended) return;
+  state.turnActive = true;
+  state.answerRevealed = false;
+  state.currentQuestion = drawQuestion();
+  renderQuestionUI();
+  updateTopInfo();
+  highlightCurrent();
+  renderPanel();
+
+  const u = currentUnit();
+  showMessage(`Vez de <b>${escapeHtml(u ? u.name : '—')}</b>`);
+  startTimer();
+
+  if (state.currentQuestion){
+    setTimeout(() => {
+      const inp = document.getElementById('csInput');
+      if (inp && !inp.disabled && state.turnActive) inp.focus();
+    }, 120);
+  }
+}
+
+function highlightUnit(unitId, cls){
+  document.querySelectorAll(`.player[data-unit-id="${unitId}"]`).forEach(el => {
+    el.classList.remove('correct','wrong');
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), 1100);
+  });
+  const row = document.querySelector(`.panel-list [data-unit-id="${unitId}"]`);
+  if (row){
+    row.classList.remove('ok','no');
+    row.classList.add(cls === 'correct' ? 'ok' : 'no');
+    setTimeout(() => row.classList.remove('ok','no'), 1200);
+  }
+}
+
+function handleAnswer(unitId, correct, typed, forced){
+  if (state.ended || !state.turnActive) return;
+  const u = state.units.find(x => x.id === unitId);
+  if (!u || !u.alive) return;
+
+  state.turnActive = false;
+  stopTimer();
+
+  // Feedback visual no input (antes de encolher o card)
+  const input = document.getElementById('csInput');
+  if (input && !forced && typed){
+    input.disabled = true;
+    input.classList.add(correct ? 'ok' : 'no');
+  }
+
+  if (state.currentQuestion && !state.answerRevealed){
+    state.answerRevealed = true;
+  }
+
+  const arena = document.getElementById('arena');
+  const stageCard = document.getElementById('stageCard');
+
+  // Monta a mensagem
+  let msg = '';
+  if (correct){
+    u.points += 1;
+    highlightUnit(u.id, 'correct');
+    msg = `<span class="g">✓ ${escapeHtml(u.name)} acertou!</span>`;
+    if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
+  } else {
+    if (state.roundMode === 'score'){
+      u.points -= 1;
+      highlightUnit(u.id, 'wrong');
+      msg = `<span class="r">✗ ${escapeHtml(u.name)} errou! −1 ponto</span>`;
+      if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
+    } else {
+      u.alive = false;
+      u.members.forEach(m => { m.alive = false; });
+      msg = `<span class="r">✗ ${escapeHtml(u.name)} errou e caiu!</span>`;
+      if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
+    }
+  }
+  showMessage(msg);
+
+  // Esconde a pergunta, encolhe o card pro topo e libera a arena
+  document.getElementById('csSecondary').classList.add('hidden');
+  document.getElementById('csInputWrap').classList.add('hidden');
+  document.getElementById('csQuestion').classList.add('hidden');
+  document.getElementById('csWarn').classList.add('hidden');
+  document.getElementById('csAnswer').classList.add('hidden');
+  stageCard.classList.add('result-mode');
+
+  // Se for queda: anima buraco + boneco
+  if (!correct && state.roundMode === 'elimination'){
+    u.members.forEach((m, idx) => {
+      const el = arena.querySelector(`.player[data-member-id="${m.id}"]`);
+      if (!el) return;
+      // 1) Tremor inicial
+      el.classList.add('wrong');
+      setTimeout(() => el.classList.remove('wrong'), 460);
+
+      // 2) Abre o buraco (portinholas deslizam para os lados)
+      setTimeout(() => {
+        const hole = el.querySelector('.hole');
+        if (hole) hole.classList.add('open');
+      }, 300 + idx * 80);
+
+      // 3) Boneco cai — depois que as portas já abriram
+      setTimeout(() => {
+        const doll = el.querySelector('.doll');
+        if (doll) doll.classList.add('falling');
+      }, 620 + idx * 80);
+
+      // 4) Marca como fora (riscado no nome)
+      setTimeout(() => el.classList.add('out'), 1700 + idx * 80);
+    });
+  }
+
+  // Tempo total para o próximo turno — espera a queda terminar
+  const waitMs = (!correct && state.roundMode === 'elimination') ? 2400 : 1800;
+
+  setTimeout(() => {
+    renderPanel();
+    updateTopInfo();
+
+    const alive = state.units.filter(x => x.alive);
+    if (state.roundMode === 'elimination' && alive.length <= 1){
+      endGame(alive[0] || null);
+      return;
+    }
+
+    state.turn += 1;
+    nextAlive();
+    updateTopInfo();
+    highlightCurrent();
+    startTurn();
+  }, waitMs);
+}
+
+function nextAlive(){
+  const n = state.units.length;
+  for (let k = 0; k < n; k++){
+    state.currentIdx = (state.currentIdx + 1) % n;
+    if (state.units[state.currentIdx].alive) return;
+  }
+}
+
+function endGame(winner){
+  state.ended = true;
+  state.turnActive = false;
+  stopTimer();
+  document.querySelectorAll('.player.picked').forEach(el => el.classList.remove('picked'));
+  renderPanel();
+
+  let titleTxt, nameTxt, subTxt;
+
+  if (state.roundMode === 'elimination'){
+    titleTxt = state.mode === 'team' ? 'EQUIPE VENCEDORA' : 'VENCEDOR';
+    nameTxt = winner ? winner.name : 'Empate';
+    subTxt = winner ? `${winner.points} ponto${winner.points === 1 ? '' : 's'}` : '';
+    showMessage(`<span class="g">🏆 ${escapeHtml(winner ? winner.name : 'Empate')} venceu!</span>`);
+  } else {
+    const sorted = [...state.units].sort((a,b) => b.points - a.points);
+    const top = sorted[0];
+    const tie = sorted.filter(x => x.points === top.points).length > 1;
+    titleTxt = state.mode === 'team' ? 'EQUIPE VENCEDORA' : 'VENCEDOR';
+    nameTxt = tie ? 'Empate!' : top.name;
+    subTxt = tie
+      ? sorted.filter(x => x.points === top.points).map(x => `${x.name} (${x.points})`).join(' · ')
+      : `${top.points} ponto${top.points === 1 ? '' : 's'}`;
+    showMessage(`<span class="g">🏆 ${tie ? 'Empate!' : escapeHtml(top.name)}</span>`);
+  }
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:9999;
+    display:grid; place-items:center; padding:20px; animation:fadeIn .4s ease;`;
+  overlay.innerHTML = `
+    <div style="text-align:center; max-width:520px; width:100%; padding:44px 30px;
+      background:linear-gradient(180deg,#1a2540,#0a0f1c);
+      border:1px solid rgba(255,201,60,.35); border-radius:24px;
+      box-shadow:0 30px 80px rgba(0,0,0,.75);">
+      <div style="font-size:72px; margin-bottom:8px; line-height:1;">🏆</div>
+      <div style="font-size:13px; letter-spacing:4px; color:var(--gold); font-weight:900; margin-bottom:10px;">${titleTxt}</div>
+      <div style="font-size:clamp(26px,6vw,38px); font-weight:900; margin-bottom:16px; color:#fff; line-height:1.15;">${escapeHtml(nameTxt)}</div>
+      ${subTxt ? `<div style="color:var(--muted); font-size:14px; margin-bottom:28px;">${escapeHtml(subTxt)}</div>` : ''}
+      <button class="btn primary" style="padding:14px 28px; font-size:15px;" onclick="location.reload()">Jogar novamente</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function encerrar(){
+  if (state.ended) return;
+  if (!confirm('Encerrar o jogo agora e mostrar o vencedor?')) return;
+  const sorted = [...state.units].sort((a,b) => b.points - a.points);
+  endGame(sorted[0] || null);
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
