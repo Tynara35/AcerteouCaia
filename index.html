@@ -220,6 +220,7 @@ input,textarea{ font-family:inherit; }
   color:var(--muted); white-space:nowrap;
 }
 .pill b{ color:var(--gold); }
+.pill.progress{ background:rgba(255,201,60,.14); border-color:rgba(255,201,60,.4); color:#ffd66b; }
 .topactions{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
 .topactions .btn{ padding:9px 14px; font-size:13px; }
 
@@ -248,9 +249,7 @@ input,textarea{ font-family:inherit; }
   background:radial-gradient(ellipse at center, rgba(0,0,0,.65), transparent 70%);
   pointer-events:none;
 }
-.arena.shake{
-  animation:arenaShake .55s cubic-bezier(.36,.07,.19,.97);
-}
+.arena.shake{ animation:arenaShake .55s cubic-bezier(.36,.07,.19,.97); }
 @keyframes arenaShake{
   0%,100%{ transform:translate(0,0) }
   15%{ transform:translate(-5px,3px) }
@@ -307,9 +306,7 @@ input,textarea{ font-family:inherit; }
   font-size: clamp(13px, 1.7vw, 17px);
   margin: 0;
 }
-.stage-card.result-mode .sc-msg .typed{
-  font-size: .72em;
-}
+.stage-card.result-mode .sc-msg .typed{ font-size: .72em; }
 
 .sc-top{
   display:flex; justify-content:center; align-items:center; gap:10px;
@@ -525,19 +522,14 @@ input,textarea{ font-family:inherit; }
   35%  { opacity:1; transform:scale(1); }
   100% { opacity:0; transform:scale(1.5); }
 }
-.hole.open .hole-dark{
-  animation:holeInnerGlow 1.4s ease-out;
-}
+.hole.open .hole-dark{ animation:holeInnerGlow 1.4s ease-out; }
 @keyframes holeInnerGlow{
   0%   { box-shadow: inset 0 10px 22px #000, inset 0 -6px 12px #000, 0 0 26px #000; }
   35%  { box-shadow: inset 0 14px 30px #000, inset 0 -8px 16px #000, 0 0 40px rgba(255,40,80,.45); }
   100% { box-shadow: inset 0 10px 22px #000, inset 0 -6px 12px #000, 0 0 26px #000; }
 }
 
-/* Boneco que já caiu na arena fica só como "fantasma" riscado */
-.player.fell .doll{
-  animation: dollDissolve .6s forwards;
-}
+.player.fell .doll{ animation: dollDissolve .6s forwards; }
 @keyframes dollDissolve{
   to { opacity: .12; filter: grayscale(1) blur(1px); }
 }
@@ -626,16 +618,12 @@ input,textarea{ font-family:inherit; }
 .tgroup.out{ opacity:.45; }
 
 /* ============================================================
-   OVERLAY DE QUEDA EM DESTAQUE (o clímax do jogo)
+   OVERLAY DE QUEDA EM DESTAQUE
 ============================================================ */
 .fall-overlay{
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  transition: opacity .45s ease;
+  position: fixed; inset: 0; z-index: 10000;
+  display: grid; place-items: center;
+  opacity: 0; transition: opacity .45s ease;
   pointer-events: none;
   background:
     radial-gradient(ellipse 60% 50% at 50% 45%, rgba(120,0,30,.55) 0%, transparent 70%),
@@ -643,24 +631,16 @@ input,textarea{ font-family:inherit; }
 }
 .fall-overlay::before{
   content:'';
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background:
     repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,.015) 3px, rgba(255,255,255,.015) 4px);
-  pointer-events: none;
-  opacity: .5;
-  mix-blend-mode: overlay;
+  pointer-events: none; opacity: .5; mix-blend-mode: overlay;
 }
-.fall-overlay.show{
-  opacity: 1;
-  pointer-events: auto;
-}
+.fall-overlay.show{ opacity: 1; pointer-events: auto; }
 .fall-overlay.hidden{ display: none; }
 
 .fall-stage{
-  position: relative;
-  text-align: center;
-  padding: 20px;
+  position: relative; text-align: center; padding: 20px;
   animation: stagePop .6s cubic-bezier(.34,1.56,.64,1);
   transform-origin: center;
 }
@@ -670,15 +650,10 @@ input,textarea{ font-family:inherit; }
 }
 
 .fall-badge{
-  display: inline-block;
-  padding: 6px 18px;
-  border-radius: 999px;
+  display: inline-block; padding: 6px 18px; border-radius: 999px;
   background: linear-gradient(135deg, #ff3b5c, #a1001f);
-  color: #fff;
-  font-size: clamp(11px, 1.4vw, 14px);
-  font-weight: 900;
-  letter-spacing: 5px;
-  text-transform: uppercase;
+  color: #fff; font-size: clamp(11px, 1.4vw, 14px);
+  font-weight: 900; letter-spacing: 5px; text-transform: uppercase;
   box-shadow: 0 6px 24px rgba(255,59,92,.6);
   margin-bottom: 14px;
   animation: badgePulse .9s ease infinite alternate;
@@ -689,16 +664,9 @@ input,textarea{ font-family:inherit; }
 }
 
 .fall-name{
-  font-size: clamp(24px, 5.5vw, 52px);
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: 1px;
-  line-height: 1.1;
-  margin-bottom: 6px;
-  text-shadow:
-    0 0 20px rgba(255,59,92,.9),
-    0 0 60px rgba(255,59,92,.6),
-    0 4px 30px rgba(0,0,0,.9);
+  font-size: clamp(24px, 5.5vw, 52px); font-weight: 900; color: #fff;
+  letter-spacing: 1px; line-height: 1.1; margin-bottom: 6px;
+  text-shadow: 0 0 20px rgba(255,59,92,.9), 0 0 60px rgba(255,59,92,.6), 0 4px 30px rgba(0,0,0,.9);
   animation: nameGlow 1.1s ease-in-out infinite alternate;
 }
 @keyframes nameGlow{
@@ -707,35 +675,21 @@ input,textarea{ font-family:inherit; }
 }
 
 .fall-sub{
-  font-size: clamp(10px, 1.4vw, 14px);
-  color: #ff8da1;
-  letter-spacing: 6px;
-  font-weight: 900;
-  text-transform: uppercase;
-  margin-bottom: clamp(24px, 5vh, 60px);
-  opacity: .9;
+  font-size: clamp(10px, 1.4vw, 14px); color: #ff8da1;
+  letter-spacing: 6px; font-weight: 900; text-transform: uppercase;
+  margin-bottom: clamp(24px, 5vh, 60px); opacity: .9;
 }
 
 .fall-dolls{
-  display: flex;
-  gap: clamp(10px, 3vw, 40px);
-  justify-content: center;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  max-width: 92vw;
-  margin: 0 auto;
+  display: flex; gap: clamp(10px, 3vw, 40px);
+  justify-content: center; align-items: flex-end; flex-wrap: wrap;
+  max-width: 92vw; margin: 0 auto;
 }
 
-.fall-pair{
-  position: relative;
-  width: clamp(90px, 20vw, 190px);
-  flex: 0 0 auto;
-}
+.fall-pair{ position: relative; width: clamp(90px, 20vw, 190px); flex: 0 0 auto; }
 
 .fall-doll{
-  position: relative;
-  z-index: 2;
-  width: 100%;
+  position: relative; z-index: 2; width: 100%;
   transform-origin: 50% 96%;
   filter: drop-shadow(0 20px 26px rgba(0,0,0,.85));
   animation: dollDrop .7s cubic-bezier(.34,1.56,.64,1);
@@ -747,9 +701,7 @@ input,textarea{ font-family:inherit; }
 }
 .fall-doll svg{ width: 100%; height: auto; display: block; }
 
-.fall-doll.shake{
-  animation: dollShakeBig .4s ease-in-out infinite;
-}
+.fall-doll.shake{ animation: dollShakeBig .4s ease-in-out infinite; }
 @keyframes dollShakeBig{
   0%,100% { transform: translateX(0) rotate(0deg); }
   20%     { transform: translateX(-5px) rotate(-4deg); }
@@ -758,9 +710,7 @@ input,textarea{ font-family:inherit; }
   80%     { transform: translateX(4px) rotate(3deg); }
 }
 
-.fall-doll.falling{
-  animation: dollFallBig 1.5s cubic-bezier(.42,0,.66,.28) forwards;
-}
+.fall-doll.falling{ animation: dollFallBig 1.5s cubic-bezier(.42,0,.66,.28) forwards; }
 @keyframes dollFallBig{
   0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
   8%   { transform: translateY(-16%) rotate(-5deg) scale(1.08); opacity: 1; }
@@ -772,23 +722,14 @@ input,textarea{ font-family:inherit; }
 }
 
 .fall-hole{
-  position: absolute;
-  top: 84%;
-  left: 50%;
+  position: absolute; top: 84%; left: 50%;
   transform: translateX(-50%);
-  width: 150%;
-  height: 24%;
-  z-index: 1;
-  pointer-events: none;
+  width: 150%; height: 24%; z-index: 1; pointer-events: none;
 }
 .fall-hole-dark{
-  position: absolute; inset: 0;
-  border-radius: 50%;
+  position: absolute; inset: 0; border-radius: 50%;
   background: radial-gradient(ellipse at 50% 45%, #000 0%, #000 45%, #08060e 100%);
-  box-shadow:
-    inset 0 22px 45px #000,
-    inset 0 -8px 18px #000,
-    0 0 60px rgba(0,0,0,1);
+  box-shadow: inset 0 22px 45px #000, inset 0 -8px 18px #000, 0 0 60px rgba(0,0,0,1);
 }
 .fall-door{
   position: absolute; top: 0; height: 100%; width: 50%;
@@ -802,10 +743,7 @@ input,textarea{ font-family:inherit; }
 .fall-hole.open .dr{ transform: translate(125%,30%) rotate(32deg); opacity: 0; }
 
 .fall-hole.open::before{
-  content: '';
-  position: absolute;
-  inset: -70%;
-  border-radius: 50%;
+  content: ''; position: absolute; inset: -70%; border-radius: 50%;
   background: radial-gradient(ellipse, rgba(255,40,80,.75) 0%, rgba(255,40,80,0) 60%);
   animation: holeFlashBig 1.2s ease-out;
   pointer-events: none;
@@ -815,52 +753,32 @@ input,textarea{ font-family:inherit; }
   35%  { opacity: 1; transform: scale(1); }
   100% { opacity: 0; transform: scale(1.7); }
 }
-.fall-hole.open .fall-hole-dark{
-  animation: holeInnerGlowBig 1.7s ease-out;
-}
+.fall-hole.open .fall-hole-dark{ animation: holeInnerGlowBig 1.7s ease-out; }
 @keyframes holeInnerGlowBig{
   0%   { box-shadow: inset 0 22px 45px #000, inset 0 -8px 18px #000, 0 0 60px #000; }
   30%  { box-shadow: inset 0 30px 65px #000, inset 0 -12px 24px #000, 0 0 100px rgba(255,40,80,.7); }
   100% { box-shadow: inset 0 22px 45px #000, inset 0 -8px 18px #000, 0 0 60px #000; }
 }
 
-/* Raio de impacto quando o boneco some */
 .fall-impact{
-  position: absolute;
-  left: 50%;
-  top: 90%;
+  position: absolute; left: 50%; top: 90%;
   transform: translate(-50%,-50%) scale(.3);
-  width: 160%;
-  height: 40%;
-  border-radius: 50%;
+  width: 160%; height: 40%; border-radius: 50%;
   border: 4px solid rgba(255,80,110,.9);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 0;
+  opacity: 0; pointer-events: none; z-index: 0;
 }
-.fall-impact.go{
-  animation: impactWave .7s ease-out forwards;
-}
+.fall-impact.go{ animation: impactWave .7s ease-out forwards; }
 @keyframes impactWave{
   0%   { opacity: 1; transform: translate(-50%,-50%) scale(.3); border-width: 6px; }
   100% { opacity: 0; transform: translate(-50%,-50%) scale(2); border-width: 1px; }
 }
 
-/* Botão de pular */
 .fall-skip{
-  position: fixed;
-  bottom: 26px; right: 26px;
-  padding: 10px 18px;
-  border-radius: 11px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.18);
-  color: #fff;
-  font-weight: 800;
-  font-size: 13px;
-  cursor: pointer;
-  z-index: 10001;
-  letter-spacing: .5px;
-  transition: .15s;
+  position: fixed; bottom: 26px; right: 26px;
+  padding: 10px 18px; border-radius: 11px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+  color: #fff; font-weight: 800; font-size: 13px; cursor: pointer;
+  z-index: 10001; letter-spacing: .5px; transition: .15s;
 }
 .fall-skip:hover{ background: rgba(255,255,255,.16); }
 
@@ -912,6 +830,24 @@ input,textarea{ font-family:inherit; }
       <button data-rmode="score">🏆 Por pontuação</button>
     </div>
     <p class="hint" id="roundHint">Quem errar tem o buraco aberto e sai do jogo.</p>
+  </section>
+
+  <section class="card hidden" id="roundsCard">
+    <h2>2.1 · Quantas rodadas?</h2>
+    <div class="qty-row">
+      <div class="field">
+        <label>Rodadas por participante/equipe</label>
+        <input type="number" id="roundsPerUnit" min="1" max="50" value="5">
+      </div>
+      <label class="toggle on" id="roundLimitToggle" style="flex:1; min-width:240px;">
+        <input type="checkbox" id="roundLimitEnabled" checked>
+        <span>🏁 Encerrar automaticamente ao completar as rodadas</span>
+      </label>
+    </div>
+    <p class="hint">
+      Cada participante/equipe responde <b>N perguntas</b>. Quem tiver mais pontos no final, vence.
+      Se desmarcar, o jogo só termina quando você clicar em <b>🏁 Encerrar</b>.
+    </p>
   </section>
 
   <section class="card">
@@ -1050,7 +986,6 @@ input,textarea{ font-family:inherit; }
   </div>
 </div>
 
-<!-- Overlay de queda (cena principal quando alguém erra) -->
 <div class="fall-overlay hidden" id="fallOverlay">
   <div class="fall-stage" id="fallStage">
     <div class="fall-badge">💀 Caiu no buraco</div>
@@ -1077,7 +1012,11 @@ const state = {
   timerDuration: 30,
   timerRemaining: 0,
   timerPaused: false,
-  turnActive: false
+  turnActive: false,
+  // rounds / score mode
+  roundLimitEnabled: true,
+  roundsPerUnit: 5,
+  totalTurns: 0
 };
 
 let _idc = 0;
@@ -1156,49 +1095,33 @@ function svgAvatar(gender, photoUrl, color){
 }
 
 /* ============================================================
-   CENA DE QUEDA EM DESTAQUE
+   CENA DE QUEDA
 ============================================================ */
 let _fallResolve = null;
 let _fallTimers = [];
+function clearFallTimers(){ _fallTimers.forEach(t => clearTimeout(t)); _fallTimers = []; }
+function fallTimeout(fn, ms){ const t = setTimeout(fn, ms); _fallTimers.push(t); return t; }
 
-function clearFallTimers(){
-  _fallTimers.forEach(t => clearTimeout(t));
-  _fallTimers = [];
-}
-function fallTimeout(fn, ms){
-  const t = setTimeout(fn, ms);
-  _fallTimers.push(t);
-  return t;
-}
-
-/* members: array de membros que vão cair
-   teamColor: cor base
-   teamName: nome exibido no topo (nome do participante ou "Equipe X") */
 function playFallSequence(members, teamColor, teamName){
   return new Promise(resolve => {
     clearFallTimers();
-
     const overlay = document.getElementById('fallOverlay');
     const stage = document.getElementById('fallStage');
     const nameEl = document.getElementById('fallName');
     const dollsWrap = document.getElementById('fallDolls');
     const skipBtn = document.getElementById('fallSkip');
 
-    // Reset
     overlay.classList.add('hidden');
     overlay.classList.remove('show');
     dollsWrap.innerHTML = '';
     skipBtn.style.display = '';
 
-    // Monta cada par boneco+buraco
     members.forEach(m => {
       const pair = document.createElement('div');
       pair.className = 'fall-pair';
-
       const dollDiv = document.createElement('div');
       dollDiv.className = 'fall-doll';
       dollDiv.innerHTML = svgAvatar(m.gender, m.photo, teamColor);
-
       const holeDiv = document.createElement('div');
       holeDiv.className = 'fall-hole';
       holeDiv.innerHTML = `
@@ -1207,23 +1130,15 @@ function playFallSequence(members, teamColor, teamName){
         <div class="fall-door dr"></div>
         <div class="fall-impact"></div>
       `;
-
       pair.appendChild(holeDiv);
       pair.appendChild(dollDiv);
       dollsWrap.appendChild(pair);
     });
 
     nameEl.textContent = teamName;
-    nameEl.style.animation = 'none';
-    void nameEl.offsetWidth;
-    nameEl.style.animation = '';
+    nameEl.style.animation = 'none'; void nameEl.offsetWidth; nameEl.style.animation = '';
+    stage.style.animation = 'none'; void stage.offsetWidth; stage.style.animation = '';
 
-    // Reinicia animação do stage (pop)
-    stage.style.animation = 'none';
-    void stage.offsetWidth;
-    stage.style.animation = '';
-
-    // Mostra overlay
     overlay.classList.remove('hidden');
     void overlay.offsetWidth;
     overlay.classList.add('show');
@@ -1238,52 +1153,37 @@ function playFallSequence(members, teamColor, teamName){
       }, 420);
     };
 
-    // 0.6s → boneco começa a tremer (suspense)
     fallTimeout(() => {
       dollsWrap.querySelectorAll('.fall-doll').forEach(d => d.classList.add('shake'));
     }, 700);
 
-    // 1.5s → buraco abre (portas deslizam + clarão)
     fallTimeout(() => {
       dollsWrap.querySelectorAll('.fall-hole').forEach(h => h.classList.add('open'));
     }, 1600);
 
-    // 2.3s → boneco cai
     fallTimeout(() => {
       const dolls = dollsWrap.querySelectorAll('.fall-doll');
       dolls.forEach((d, i) => {
         fallTimeout(() => {
           d.classList.remove('shake');
-          // Reinicia animação
-          d.style.animation = 'none';
-          void d.offsetWidth;
-          d.style.animation = '';
+          d.style.animation = 'none'; void d.offsetWidth; d.style.animation = '';
           d.classList.add('falling');
         }, i * 120);
       });
     }, 2300);
 
-    // 3.6s → onda de impacto no buraco
     fallTimeout(() => {
-      dollsWrap.querySelectorAll('.fall-impact').forEach(imp => {
-        imp.classList.add('go');
-      });
+      dollsWrap.querySelectorAll('.fall-impact').forEach(imp => imp.classList.add('go'));
     }, 3600);
 
-    // 4.1s → encerra cena automaticamente
-    fallTimeout(() => {
-      if (_fallResolve) _fallResolve();
-    }, 4100);
+    fallTimeout(() => { if (_fallResolve) _fallResolve(); }, 4100);
   });
 }
 
-/* Pular a cena */
-function skipFall(){
-  if (_fallResolve) _fallResolve();
-}
+function skipFall(){ if (_fallResolve) _fallResolve(); }
 
 /* ============================================================
-   MODOS / SETUP
+   SETUP — modos
 ============================================================ */
 document.querySelectorAll('#modeSeg button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1315,6 +1215,13 @@ document.querySelectorAll('#roundSeg button').forEach(btn => {
     hint.textContent = state.roundMode === 'elimination'
       ? 'Quem errar tem o buraco aberto e sai do jogo.'
       : 'Quem acertar ganha 1 ponto, quem errar perde 1 ponto. Ninguém cai.';
+    // Mostra/oculta o card de rodadas (só no modo pontuação)
+    const roundsCard = document.getElementById('roundsCard');
+    if (state.roundMode === 'score'){
+      roundsCard.classList.remove('hidden');
+    } else {
+      roundsCard.classList.add('hidden');
+    }
   });
 });
 
@@ -1327,6 +1234,7 @@ function bindToggle(id){
 }
 bindToggle('timerEnabled');
 bindToggle('useQuestions');
+bindToggle('roundLimitEnabled');
 
 /* ============================================================
    PERGUNTAS
@@ -1365,14 +1273,12 @@ function addQuestion(){
   if (rows.length) rows[rows.length - 1].focus();
   host.scrollTop = host.scrollHeight;
 }
-
 function clearQuestions(){
   if (!state.questions.length) return;
   if (!confirm('Apagar todas as ' + state.questions.length + ' perguntas?')) return;
   state.questions = [];
   renderQuestionList();
 }
-
 function exportQuestions(){
   const data = state.questions.map(q => ({ q: q.q, a: q.a }));
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1387,8 +1293,7 @@ function exportQuestions(){
 }
 
 document.getElementById('importQ').addEventListener('change', e => {
-  const f = e.target.files[0];
-  if (!f) return;
+  const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
   r.onload = () => {
     try {
@@ -1408,7 +1313,6 @@ document.getElementById('importQ').addEventListener('change', e => {
           imported.push({ id: uid('q'), q: String(q).trim(), a: String(a).trim(), used: false });
         }
       });
-
       if (!imported.length) throw new Error('Nenhuma pergunta válida encontrada');
 
       if (state.questions.length){
@@ -1423,9 +1327,7 @@ document.getElementById('importQ').addEventListener('change', e => {
       renderQuestionList();
     } catch(err){
       alert('Erro ao importar: ' + err.message);
-    } finally {
-      e.target.value = '';
-    }
+    } finally { e.target.value = ''; }
   };
   r.readAsText(f);
 });
@@ -1448,12 +1350,10 @@ function loadExampleQuestions(){
     { q: 'Qual é a fórmula química da água?', a: 'H2O' },
     { q: 'Qual é o idioma mais falado do mundo?', a: 'Mandarim' }
   ].map(x => ({ id: uid('q'), q: x.q, a: x.a, used: false }));
-
   if (state.questions.length && !confirm('Substituir as perguntas atuais pelo exemplo?')) return;
   state.questions = exemplo;
   renderQuestionList();
 }
-
 renderQuestionList();
 
 /* ============================================================
@@ -1472,8 +1372,7 @@ function gerarEditor(){
       id: uid('u'),
       name: 'Participante ' + (i+1),
       color: TEAM_COLORS[i % TEAM_COLORS.length],
-      alive: true,
-      points: 0,
+      alive: true, points: 0,
       members: [ mkMember('Participante ' + (i+1)) ]
     }));
   } else {
@@ -1493,7 +1392,6 @@ function gerarEditor(){
 function renderEditor(){
   const host = document.getElementById('editor');
   host.innerHTML = '';
-
   if (state.mode === 'individual'){
     const wrap = document.createElement('div');
     wrap.className = 'tblock';
@@ -1618,6 +1516,8 @@ function iniciarJogo(){
   state.timerEnabled = document.getElementById('timerEnabled').checked;
   state.timerDuration = Math.max(0, parseInt(document.getElementById('timerSeconds').value) || 0);
   state.useQuestions = document.getElementById('useQuestions').checked;
+  state.roundLimitEnabled = document.getElementById('roundLimitEnabled').checked;
+  state.roundsPerUnit = Math.max(1, Math.min(50, parseInt(document.getElementById('roundsPerUnit').value) || 5));
 
   state.units.forEach(u => {
     u.alive = true; u.points = 0;
@@ -1627,6 +1527,13 @@ function iniciarJogo(){
   state.currentIdx = 0;
   state.turn = 1;
   state.ended = false;
+
+  // Em modo pontuação com limite: total de turnos = rodadas × unidades
+  if (state.roundMode === 'score' && state.roundLimitEnabled){
+    state.totalTurns = state.roundsPerUnit * state.units.length;
+  } else {
+    state.totalTurns = 0; // sem limite
+  }
 
   document.getElementById('setup').classList.add('hidden');
   document.getElementById('game').classList.remove('hidden');
@@ -1674,22 +1581,17 @@ function layoutArena(){
   const size = Math.max(240, Math.min(r.width, r.height) - 24);
   arena.style.width = size + 'px';
   arena.style.height = size + 'px';
-
   const baseW = Math.max(30, Math.min(84, size * 0.082));
   arena.style.setProperty('--w', baseW.toFixed(1) + 'px');
-
   const players = [...arena.querySelectorAll('.player')];
   const n = players.length;
   if (!n) return;
-
   const radius = 0.33;
   players.forEach((p, i) => {
     const ang = (i / n) * Math.PI * 2 - Math.PI / 2;
     const cosA = Math.cos(ang), sinA = Math.sin(ang);
-    const cx = 50 + cosA * radius * 100;
-    const cy = 50 + sinA * radius * 100 * 0.86;
-    p.style.left = cx + '%';
-    p.style.top = cy + '%';
+    p.style.left = (50 + cosA * radius * 100) + '%';
+    p.style.top  = (50 + sinA * radius * 100 * 0.86) + '%';
     const s = 0.72 + (sinA + 1) * 0.15;
     p.style.setProperty('--s', s.toFixed(3));
     p.style.zIndex = 100 + Math.round(sinA * 60);
@@ -1705,7 +1607,6 @@ function renderPanel(){
   const title = document.getElementById('panelTitle');
   const count = document.getElementById('panelCount');
   list.innerHTML = '';
-
   title.textContent = state.mode === 'individual' ? 'Participantes' : 'Equipes';
   count.textContent = state.units.filter(u => u.alive).length + '/' + state.units.length;
 
@@ -1746,9 +1647,7 @@ function renderPanel(){
 document.getElementById('panelList').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]');
   if (!b) return;
-  const unitId = b.dataset.unit;
-  const ok = b.dataset.act === 'ok';
-  handleAnswer(unitId, ok, null, true);
+  handleAnswer(b.dataset.unit, b.dataset.act === 'ok', null, true);
 });
 
 /* ============================================================
@@ -1768,7 +1667,19 @@ function showMessage(html){
 function updateTopInfo(){
   document.getElementById('pillMode').innerHTML = state.mode === 'individual' ? '👤 Individual' : '👥 Equipes';
   document.getElementById('pillRMode').innerHTML = state.roundMode === 'elimination' ? '🕳️ Errou caiu' : '🏆 Pontuação';
-  document.getElementById('pillTurn').innerHTML = `Turno <b>${state.turn}</b>`;
+
+  // Pill de turno / progresso de rodadas
+  const turnEl = document.getElementById('pillTurn');
+  if (state.roundMode === 'score' && state.roundLimitEnabled && state.totalTurns > 0){
+    const units = state.units.length || 1;
+    const roundAtual = Math.min(state.roundsPerUnit, Math.floor((state.turn - 1) / units) + 1);
+    turnEl.innerHTML = `Rodada <b>${roundAtual}/${state.roundsPerUnit}</b>`;
+    turnEl.classList.add('progress');
+  } else {
+    turnEl.innerHTML = `Turno <b>${state.turn}</b>`;
+    turnEl.classList.remove('progress');
+  }
+
   const u = currentUnit();
   document.getElementById('pillNow').innerHTML = u ? `Vez de <b>${escapeHtml(unitDisplayName(u))}</b>` : '—';
 }
@@ -1851,7 +1762,6 @@ function updateSecondary(){
   const fOk = document.getElementById('scForceOk');
   const fNo = document.getElementById('scForceNo');
   const active = state.turnActive && !state.ended;
-
   reveal.disabled = !active || state.answerRevealed || !state.currentQuestion;
   pause.disabled = !active || !state.timerEnabled || state.timerDuration <= 0;
   pause.textContent = state.timerPaused ? '▶ Continuar' : '⏸ Pausar';
@@ -1889,10 +1799,7 @@ document.getElementById('scReveal').addEventListener('click', revealAnswer);
 document.getElementById('scPause').addEventListener('click', togglePause);
 
 document.getElementById('csInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter'){
-    e.preventDefault();
-    confirmTyped();
-  }
+  if (e.key === 'Enter'){ e.preventDefault(); confirmTyped(); }
 });
 
 function revealAnswer(){
@@ -1904,31 +1811,20 @@ function revealAnswer(){
 function startTimer(){
   stopTimer();
   const el = document.getElementById('csTimer');
-  if (!state.timerEnabled || state.timerDuration <= 0){
-    el.classList.add('hidden');
-    return;
-  }
+  if (!state.timerEnabled || state.timerDuration <= 0){ el.classList.add('hidden'); return; }
   state.timerRemaining = state.timerDuration;
   state.timerPaused = false;
   el.classList.remove('hidden');
   updateTimerDisplay();
   timerInterval = setInterval(tickTimer, 1000);
 }
-
 function tickTimer(){
   if (state.timerPaused) return;
   state.timerRemaining--;
   updateTimerDisplay();
-  if (state.timerRemaining <= 0){
-    stopTimer();
-    onTimeOut();
-  }
+  if (state.timerRemaining <= 0){ stopTimer(); onTimeOut(); }
 }
-
-function stopTimer(){
-  if (timerInterval){ clearInterval(timerInterval); timerInterval = null; }
-}
-
+function stopTimer(){ if (timerInterval){ clearInterval(timerInterval); timerInterval = null; } }
 function updateTimerDisplay(){
   const el = document.getElementById('csTimer');
   if (!el) return;
@@ -1936,7 +1832,6 @@ function updateTimerDisplay(){
   el.classList.toggle('warn', state.timerRemaining <= 10 && state.timerRemaining > 0 && !state.timerPaused);
   el.classList.toggle('paused', state.timerPaused);
 }
-
 function togglePause(){
   if (!state.turnActive) return;
   if (!state.timerEnabled || state.timerDuration <= 0) return;
@@ -1944,7 +1839,6 @@ function togglePause(){
   updateSecondary();
   updateTimerDisplay();
 }
-
 function onTimeOut(){
   if (!state.turnActive) return;
   showMessage(`<span class="r">⏰ Tempo esgotado!</span>`);
@@ -1961,11 +1855,9 @@ function startTurn(){
   updateTopInfo();
   highlightCurrent();
   renderPanel();
-
   const u = currentUnit();
   showMessage(`Vez de <b>${escapeHtml(unitDisplayName(u))}</b>`);
   startTimer();
-
   if (state.currentQuestion){
     setTimeout(() => {
       const inp = document.getElementById('csInput');
@@ -1999,6 +1891,19 @@ function shrinkCardForResult(){
 
 function advanceTurn(){
   if (state.ended) return;
+
+  // Verifica limite de rodadas no modo pontuação
+  if (state.roundMode === 'score' && state.roundLimitEnabled && state.totalTurns > 0){
+    // state.turn é o próximo turno a ser jogado. Se já passou do total, encerra.
+    if (state.turn > state.totalTurns){
+      renderPanel();
+      updateTopInfo();
+      const sorted = [...state.units].sort((a,b) => b.points - a.points);
+      endGame(sorted[0] || null);
+      return;
+    }
+  }
+
   renderPanel();
   updateTopInfo();
 
@@ -2028,14 +1933,11 @@ async function handleAnswer(unitId, correct, typed, forced){
     input.disabled = true;
     input.classList.add(correct ? 'ok' : 'no');
   }
-
-  if (state.currentQuestion && !state.answerRevealed){
-    state.answerRevealed = true;
-  }
+  if (state.currentQuestion && !state.answerRevealed) state.answerRevealed = true;
 
   const arena = document.getElementById('arena');
 
-  /* ---------- ACERTO ---------- */
+  /* ACERTO */
   if (correct){
     u.points += 1;
     highlightUnit(u.id, 'correct');
@@ -2047,7 +1949,7 @@ async function handleAnswer(unitId, correct, typed, forced){
     return;
   }
 
-  /* ---------- ERRO em modo pontuação ---------- */
+  /* ERRO — modo pontuação */
   if (state.roundMode === 'score'){
     u.points -= 1;
     highlightUnit(u.id, 'wrong');
@@ -2059,7 +1961,7 @@ async function handleAnswer(unitId, correct, typed, forced){
     return;
   }
 
-  /* ---------- ERRO em modo eliminação: CAI NO BURACO (cena em destaque) ---------- */
+  /* ERRO — modo eliminação: cai no buraco */
   u.alive = false;
   u.members.forEach(m => { m.alive = false; });
 
@@ -2068,7 +1970,6 @@ async function handleAnswer(unitId, correct, typed, forced){
   showMessage(msg);
   shrinkCardForResult();
 
-  // Marca o boneco na arena como "caindo" também (tremor), para dar coesão visual
   const arenaPlayers = u.members
     .map(m => arena.querySelector(`.player[data-member-id="${m.id}"]`))
     .filter(Boolean);
@@ -2077,23 +1978,17 @@ async function handleAnswer(unitId, correct, typed, forced){
     setTimeout(() => el.classList.remove('wrong'), 500);
   });
 
-  // 🎬 Roda a cena em destaque (overlay no centro da tela)
   await playFallSequence(u.members, u.color, unitDisplayName(u));
 
-  // Depois da queda: marca como "fell" na arena (boneco vira fantasma riscado)
   arenaPlayers.forEach(el => {
-    el.classList.add('fell');
-    el.classList.add('out');
-    // Abre o buraco da arena também para ficar coerente
+    el.classList.add('fell'); el.classList.add('out');
     const hole = el.querySelector('.hole');
     if (hole) hole.classList.add('open');
   });
 
-  // Treme a arena como impacto final
   arena.classList.add('shake');
   setTimeout(() => arena.classList.remove('shake'), 600);
 
-  // Próximo turno
   setTimeout(advanceTurn, 700);
 }
 
