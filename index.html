@@ -299,9 +299,7 @@ input,textarea{ font-family:inherit; }
 .stage-card.result-mode .sc-input-wrap,
 .stage-card.result-mode .sc-warn,
 .stage-card.result-mode .sc-actions,
-.stage-card.result-mode .sc-answer{
-  display: none !important;
-}
+.stage-card.result-mode .sc-answer{ display: none !important; }
 .stage-card.result-mode .sc-msg{
   font-size: clamp(13px, 1.7vw, 17px);
   margin: 0;
@@ -555,6 +553,29 @@ input,textarea{ font-family:inherit; }
   box-shadow:none;
 }
 
+/* Estado de finale: spotlight no vencedor, dim nos outros */
+.player.dimmed .doll{
+  filter: brightness(.32) grayscale(.7) drop-shadow(0 10px 12px rgba(0,0,0,.6));
+  transition: filter .7s ease;
+}
+.player.dimmed .nameplate{
+  opacity: .32;
+  transition: opacity .7s ease;
+}
+.player.spotlight .doll{
+  filter: drop-shadow(0 0 30px rgba(255,201,60,1)) drop-shadow(0 0 60px rgba(255,201,60,.65)) drop-shadow(0 10px 12px rgba(0,0,0,.5));
+  animation: spotlightPulse 1.1s ease-in-out infinite alternate;
+}
+.player.spotlight .nameplate{
+  border-color: var(--gold);
+  box-shadow: 0 0 26px rgba(255,201,60,.95);
+  background: rgba(255,201,60,.18);
+}
+@keyframes spotlightPulse{
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+
 .panel{
   width:340px; flex:0 0 340px;
   border-left:1px solid var(--line);
@@ -618,7 +639,7 @@ input,textarea{ font-family:inherit; }
 .tgroup.out{ opacity:.45; }
 
 /* ============================================================
-   OVERLAY DE QUEDA EM DESTAQUE
+   QUEDA EM DESTAQUE
 ============================================================ */
 .fall-overlay{
   position: fixed; inset: 0; z-index: 10000;
@@ -782,6 +803,187 @@ input,textarea{ font-family:inherit; }
 }
 .fall-skip:hover{ background: rgba(255,255,255,.16); }
 
+/* ============================================================
+   FINALE — suspense de fim de jogo
+============================================================ */
+.finale-overlay{
+  position: fixed; inset: 0; z-index: 9990;
+  display: grid; place-items: center;
+  opacity: 0; transition: opacity .55s ease;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 45%, rgba(20,40,80,.7) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(0,0,0,.94) 0%, #000 100%);
+}
+.finale-overlay.show{ opacity: 1; }
+.finale-overlay.hidden{ display: none; }
+
+.finale-content{
+  text-align: center; padding: 24px; max-width: 92vw;
+  animation: stagePop .5s cubic-bezier(.34,1.56,.64,1);
+}
+
+.finale-badge{
+  display: inline-block; padding: 8px 22px; border-radius: 999px;
+  background: linear-gradient(135deg, #ffc93c, #ff8a3c);
+  color: #1a1200; font-size: clamp(11px, 1.6vw, 15px);
+  font-weight: 900; letter-spacing: 5px; text-transform: uppercase;
+  box-shadow: 0 8px 30px rgba(255,201,60,.6);
+  margin-bottom: 16px;
+  animation: badgeGlow 1.2s ease-in-out infinite alternate;
+}
+@keyframes badgeGlow{
+  from { transform: scale(1); box-shadow: 0 8px 30px rgba(255,201,60,.5); }
+  to   { transform: scale(1.04); box-shadow: 0 10px 42px rgba(255,201,60,.95); }
+}
+
+.finale-title{
+  font-size: clamp(22px, 4.5vw, 44px); font-weight: 900;
+  color: #fff; letter-spacing: 2px;
+  text-shadow: 0 0 30px rgba(255,201,60,.7), 0 4px 20px #000;
+  margin-bottom: 24px;
+  animation: fadeIn .5s ease;
+}
+
+.finale-scores{
+  display: flex; flex-direction: column; gap: 10px;
+  max-width: 520px; width: min(90vw, 520px); margin: 0 auto;
+  background: rgba(8,12,22,.85);
+  border: 1.5px solid rgba(255,201,60,.35);
+  border-radius: 18px; padding: 16px 20px;
+  animation: fadeIn .5s ease;
+  max-height: 60vh; overflow-y: auto;
+}
+.finale-score-row{
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid transparent;
+  opacity: 0;
+  animation: scoreRowIn .55s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+@keyframes scoreRowIn{
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.finale-score-row .pos{
+  font-size: 14px; font-weight: 900; color: var(--muted);
+  min-width: 40px; text-align: center;
+}
+.finale-score-row .dot{
+  width: 12px; height: 12px; border-radius: 50%; flex: 0 0 12px;
+}
+.finale-score-row .name{
+  flex: 1; text-align: left;
+  font-weight: 800; font-size: clamp(14px, 1.8vw, 18px);
+  color: #fff; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.finale-score-row .pts{
+  font-weight: 900; font-size: clamp(15px, 2vw, 20px);
+  color: var(--gold); background: rgba(255,201,60,.15);
+  padding: 4px 12px; border-radius: 999px;
+  min-width: 46px; text-align: center;
+}
+.finale-score-row.winner{
+  background: linear-gradient(90deg, rgba(255,201,60,.28), rgba(255,201,60,.08));
+  border-color: rgba(255,201,60,.65);
+  box-shadow: 0 0 26px rgba(255,201,60,.4);
+  transform: scale(1.02);
+}
+.finale-score-row.winner .name{ color: #ffeaa7; text-shadow: 0 0 12px rgba(255,201,60,.7); }
+.finale-score-row.winner .pos{ color: var(--gold); }
+.finale-score-row.loser{ opacity: .65; }
+
+.finale-countdown{
+  font-size: clamp(80px, 22vw, 220px); font-weight: 900;
+  color: #fff; line-height: 1;
+  text-shadow:
+    0 0 40px rgba(255,201,60,.9),
+    0 0 90px rgba(255,201,60,.5),
+    0 8px 40px #000;
+}
+.finale-countdown.pulse{
+  animation: countPulse .8s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes countPulse{
+  0%   { transform: scale(2.2); opacity: 0; }
+  40%  { transform: scale(.9); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   VENCEDOR (celebração final)
+============================================================ */
+.winner-overlay{
+  position: fixed; inset: 0; z-index: 99999;
+  display: grid; place-items: center;
+  padding: 20px;
+  background: rgba(0,0,0,.88);
+  opacity: 0; transition: opacity .5s ease;
+  overflow: hidden;
+}
+.winner-overlay.show{ opacity: 1; }
+
+.winner-card{
+  text-align: center; max-width: 560px; width: 100%;
+  padding: 44px 30px;
+  background: linear-gradient(180deg, #1a2540, #0a0f1c);
+  border: 1.5px solid rgba(255,201,60,.5);
+  border-radius: 24px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.8), 0 0 60px rgba(255,201,60,.3);
+  animation: winnerCardIn .7s cubic-bezier(.34,1.56,.64,1);
+  position: relative; z-index: 2;
+}
+@keyframes winnerCardIn{
+  from { transform: scale(.7) translateY(30px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.winner-trophy{
+  font-size: 88px; line-height: 1; margin-bottom: 10px;
+  animation: trophyBounce 1.4s ease-in-out infinite;
+}
+@keyframes trophyBounce{
+  0%,100%{ transform: translateY(0) rotate(-3deg); }
+  50%    { transform: translateY(-12px) rotate(3deg); }
+}
+.winner-title{
+  font-size: 13px; letter-spacing: 5px;
+  color: var(--gold); font-weight: 900;
+  margin-bottom: 12px; text-transform: uppercase;
+}
+.winner-name{
+  font-size: clamp(28px, 6vw, 44px);
+  font-weight: 900; color: #fff;
+  line-height: 1.15; margin-bottom: 16px;
+  text-shadow: 0 0 30px rgba(255,201,60,.7);
+}
+.winner-score{
+  color: var(--muted); font-size: 15px;
+  margin-bottom: 28px; font-weight: 800;
+  letter-spacing: 1px;
+}
+.winner-btn{
+  padding: 14px 32px !important;
+  font-size: 15px !important;
+}
+
+.confetti{
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1; overflow: hidden;
+}
+.confetti-piece{
+  position: absolute; top: -20px;
+  width: 10px; height: 14px;
+  border-radius: 2px;
+  animation: confettiFall 3s linear infinite;
+  opacity: .95;
+}
+@keyframes confettiFall{
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: .3; }
+}
+
 @media (max-width: 860px){
   .game-main{ flex-direction:column; }
   .panel{ width:100%; flex:0 0 40%; border-left:0; border-top:1px solid var(--line); }
@@ -805,6 +1007,12 @@ input,textarea{ font-family:inherit; }
   .sc-input{ padding:12px 10px; font-size:15px; }
   .sc-btn.confirm{ padding:0 14px; font-size:13px; }
   .sc-actions .sc-btn{ padding:7px 10px; font-size:11.5px; }
+  .finale-score-row{ padding: 8px 10px; gap: 8px; }
+  .finale-score-row .pos{ min-width: 28px; font-size: 12px; }
+  .finale-score-row .name{ font-size: 13px; }
+  .finale-score-row .pts{ min-width: 36px; padding: 3px 8px; font-size: 14px; }
+  .winner-trophy{ font-size: 64px; }
+  .winner-card{ padding: 32px 22px; }
 }
 </style>
 </head>
@@ -845,8 +1053,8 @@ input,textarea{ font-family:inherit; }
       </label>
     </div>
     <p class="hint">
-      Cada participante/equipe responde <b>N perguntas</b>. Quem tiver mais pontos no final, vence.
-      Se desmarcar, o jogo só termina quando você clicar em <b>🏁 Encerrar</b>.
+      Cada participante/equipe responde <b>N perguntas</b>. No final, acontece o <b>gran finale</b>:
+      todos os perdedores caem no buraco e o vencedor é anunciado com destaque.
     </p>
   </section>
 
@@ -996,6 +1204,15 @@ input,textarea{ font-family:inherit; }
   <button class="fall-skip" id="fallSkip" onclick="skipFall()">Pular ▸</button>
 </div>
 
+<div class="finale-overlay hidden" id="finaleOverlay">
+  <div class="finale-content">
+    <div class="finale-badge" id="finaleBadge">🎬 FIM DAS RODADAS</div>
+    <div class="finale-title" id="finaleTitle">Placar em apuração…</div>
+    <div class="finale-scores hidden" id="finaleScores"></div>
+    <div class="finale-countdown hidden" id="finaleCountdown"></div>
+  </div>
+</div>
+
 <script>
 const state = {
   mode: 'individual',
@@ -1013,7 +1230,6 @@ const state = {
   timerRemaining: 0,
   timerPaused: false,
   turnActive: false,
-  // rounds / score mode
   roundLimitEnabled: true,
   roundsPerUnit: 5,
   totalTurns: 0
@@ -1022,6 +1238,7 @@ const state = {
 let _idc = 0;
 const uid = (p='id') => p + (++_idc) + '_' + Math.random().toString(36).slice(2,6);
 const TEAM_COLORS = ['#ff3b5c','#ff8a3c','#ffc93c','#25d366','#3ba7ff','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6'];
+const wait = ms => new Promise(r => setTimeout(r, ms));
 
 function mkMember(name){
   return { id: uid('m'), name: name || 'Sem nome', gender: 'male', photo: null, alive: true };
@@ -1034,15 +1251,12 @@ function unitDisplayName(u){
   if (state.mode === 'individual' && u.members[0]) return u.members[0].name;
   return u.name;
 }
-
 function normalizeAnswer(s){
   return String(s ?? '')
-    .toLowerCase()
-    .trim()
+    .toLowerCase().trim()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[.,!?;:'"()\[\]{}\-–—_]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+    .replace(/\s+/g, ' ').trim();
 }
 function checkTypedAnswer(typed, correctRaw){
   const t = normalizeAnswer(typed);
@@ -1058,10 +1272,7 @@ function svgAvatar(gender, photoUrl, color){
   const hair = isF ? '#3b2314' : '#1f1408';
   const skin = '#f3c9a3';
   const skinShade = '#e0b28c';
-
-  const hairBack = isF ? `
-    <path d="M18 44 Q16 4 50 4 Q84 4 82 44 L82 86 Q76 78 78 52 L78 36 Q76 20 50 20 Q24 20 22 36 L22 52 Q24 78 18 86 Z" fill="${hair}"/>
-  ` : '';
+  const hairBack = isF ? `<path d="M18 44 Q16 4 50 4 Q84 4 82 44 L82 86 Q76 78 78 52 L78 36 Q76 20 50 20 Q24 20 22 36 L22 52 Q24 78 18 86 Z" fill="${hair}"/>` : '';
   const body = isF ? `
     <path d="M50 66 Q32 70 28 116 L72 116 Q68 70 50 66 Z" fill="${color}"/>
     <path d="M50 66 Q40 70 38 116 L50 116 Z" fill="rgba(255,255,255,.10)"/>
@@ -1080,11 +1291,8 @@ function svgAvatar(gender, photoUrl, color){
         <circle cx="61" cy="37" r="1" fill="#fff"/>
         <path d="M44 50 Q50 55 56 50" stroke="#1a1a1a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
       </g>`;
-  const hairFront = isF ? `
-    <path d="M22 40 Q20 12 50 12 Q80 12 78 40 Q76 26 62 24 Q56 30 50 30 Q44 30 38 24 Q24 26 22 40 Z" fill="${hair}"/>
-  ` : `
-    <path d="M22 36 Q22 10 50 10 Q78 10 78 36 Q76 22 62 22 Q56 28 50 28 Q44 28 38 22 Q24 22 22 36 Z" fill="${hair}"/>
-  `;
+  const hairFront = isF ? `<path d="M22 40 Q20 12 50 12 Q80 12 78 40 Q76 26 62 24 Q56 30 50 30 Q44 30 38 24 Q24 26 22 40 Z" fill="${hair}"/>`
+                        : `<path d="M22 36 Q22 10 50 10 Q78 10 78 36 Q76 22 62 22 Q56 28 50 28 Q44 28 38 22 Q24 22 22 36 Z" fill="${hair}"/>`;
   return `<svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
     <defs><clipPath id="${id}"><circle cx="50" cy="40" r="26"/></clipPath></defs>
     ${hairBack}${body}${headBase}
@@ -1095,7 +1303,7 @@ function svgAvatar(gender, photoUrl, color){
 }
 
 /* ============================================================
-   CENA DE QUEDA
+   QUEDA EM DESTAQUE (erro no modo eliminação)
 ============================================================ */
 let _fallResolve = null;
 let _fallTimers = [];
@@ -1156,11 +1364,9 @@ function playFallSequence(members, teamColor, teamName){
     fallTimeout(() => {
       dollsWrap.querySelectorAll('.fall-doll').forEach(d => d.classList.add('shake'));
     }, 700);
-
     fallTimeout(() => {
       dollsWrap.querySelectorAll('.fall-hole').forEach(h => h.classList.add('open'));
     }, 1600);
-
     fallTimeout(() => {
       const dolls = dollsWrap.querySelectorAll('.fall-doll');
       dolls.forEach((d, i) => {
@@ -1171,19 +1377,16 @@ function playFallSequence(members, teamColor, teamName){
         }, i * 120);
       });
     }, 2300);
-
     fallTimeout(() => {
       dollsWrap.querySelectorAll('.fall-impact').forEach(imp => imp.classList.add('go'));
     }, 3600);
-
     fallTimeout(() => { if (_fallResolve) _fallResolve(); }, 4100);
   });
 }
-
 function skipFall(){ if (_fallResolve) _fallResolve(); }
 
 /* ============================================================
-   SETUP — modos
+   SETUP
 ============================================================ */
 document.querySelectorAll('#modeSeg button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1214,14 +1417,8 @@ document.querySelectorAll('#roundSeg button').forEach(btn => {
     const hint = document.getElementById('roundHint');
     hint.textContent = state.roundMode === 'elimination'
       ? 'Quem errar tem o buraco aberto e sai do jogo.'
-      : 'Quem acertar ganha 1 ponto, quem errar perde 1 ponto. Ninguém cai.';
-    // Mostra/oculta o card de rodadas (só no modo pontuação)
-    const roundsCard = document.getElementById('roundsCard');
-    if (state.roundMode === 'score'){
-      roundsCard.classList.remove('hidden');
-    } else {
-      roundsCard.classList.add('hidden');
-    }
+      : 'Quem acertar ganha 1 ponto, quem errar perde 1 ponto. Ninguém cai durante o jogo — só no gran finale.';
+    document.getElementById('roundsCard').classList.toggle('hidden', state.roundMode !== 'score');
   });
 });
 
@@ -1256,15 +1453,13 @@ function renderQuestionList(){
     row.querySelector('.qQ').addEventListener('input', e => { qq.q = e.target.value; });
     row.querySelector('.qA').addEventListener('input', e => { qq.a = e.target.value; });
     row.querySelector('.remove').addEventListener('click', () => {
-      state.questions.splice(i, 1);
-      renderQuestionList();
+      state.questions.splice(i, 1); renderQuestionList();
     });
     host.appendChild(row);
   });
   document.getElementById('qCount').textContent =
     state.questions.length + ' pergunta' + (state.questions.length === 1 ? '' : 's') + ' no banco';
 }
-
 function addQuestion(){
   state.questions.push({ id: uid('q'), q: '', a: '', used: false });
   renderQuestionList();
@@ -1276,22 +1471,17 @@ function addQuestion(){
 function clearQuestions(){
   if (!state.questions.length) return;
   if (!confirm('Apagar todas as ' + state.questions.length + ' perguntas?')) return;
-  state.questions = [];
-  renderQuestionList();
+  state.questions = []; renderQuestionList();
 }
 function exportQuestions(){
   const data = state.questions.map(q => ({ q: q.q, a: q.a }));
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'perguntas-acerte-ou-caia.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = url; a.download = 'perguntas-acerte-ou-caia.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-
 document.getElementById('importQ').addEventListener('change', e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
@@ -1303,7 +1493,6 @@ document.getElementById('importQ').addEventListener('change', e => {
       else if (parsed && Array.isArray(parsed.questions)) arr = parsed.questions;
       else if (parsed && Array.isArray(parsed.perguntas)) arr = parsed.perguntas;
       else throw new Error('Formato não reconhecido');
-
       const imported = [];
       arr.forEach(item => {
         if (!item) return;
@@ -1314,7 +1503,6 @@ document.getElementById('importQ').addEventListener('change', e => {
         }
       });
       if (!imported.length) throw new Error('Nenhuma pergunta válida encontrada');
-
       if (state.questions.length){
         const replace = confirm(
           `Importadas ${imported.length} pergunta(s).\n\n` +
@@ -1325,13 +1513,11 @@ document.getElementById('importQ').addEventListener('change', e => {
         state.questions = imported;
       }
       renderQuestionList();
-    } catch(err){
-      alert('Erro ao importar: ' + err.message);
-    } finally { e.target.value = ''; }
+    } catch(err){ alert('Erro ao importar: ' + err.message); }
+    finally { e.target.value = ''; }
   };
   r.readAsText(f);
 });
-
 function loadExampleQuestions(){
   const exemplo = [
     { q: 'Qual é a capital do Brasil?', a: 'Brasília|DF' },
@@ -1351,8 +1537,7 @@ function loadExampleQuestions(){
     { q: 'Qual é o idioma mais falado do mundo?', a: 'Mandarim' }
   ].map(x => ({ id: uid('q'), q: x.q, a: x.a, used: false }));
   if (state.questions.length && !confirm('Substituir as perguntas atuais pelo exemplo?')) return;
-  state.questions = exemplo;
-  renderQuestionList();
+  state.questions = exemplo; renderQuestionList();
 }
 renderQuestionList();
 
@@ -1364,13 +1549,11 @@ function findMember(unitId, memberId){
   const u = findUnit(unitId);
   return u ? u.members.find(m => m.id === memberId) : null;
 }
-
 function gerarEditor(){
   if (state.mode === 'individual'){
     const n = Math.max(1, Math.min(50, parseInt(document.getElementById('numPlayers').value) || 8));
     state.units = Array.from({length:n}, (_, i) => ({
-      id: uid('u'),
-      name: 'Participante ' + (i+1),
+      id: uid('u'), name: 'Participante ' + (i+1),
       color: TEAM_COLORS[i % TEAM_COLORS.length],
       alive: true, points: 0,
       members: [ mkMember('Participante ' + (i+1)) ]
@@ -1388,7 +1571,6 @@ function gerarEditor(){
   document.getElementById('editorCard').classList.remove('hidden');
   setTimeout(() => document.getElementById('editorCard').scrollIntoView({behavior:'smooth', block:'start'}), 50);
 }
-
 function renderEditor(){
   const host = document.getElementById('editor');
   host.innerHTML = '';
@@ -1402,8 +1584,7 @@ function renderEditor(){
     const grid = document.createElement('div');
     grid.className = 'members';
     state.units.forEach(u => grid.appendChild(memberCard(u, u.members[0], false)));
-    wrap.appendChild(grid);
-    host.appendChild(wrap);
+    wrap.appendChild(grid); host.appendChild(wrap);
   } else {
     state.units.forEach(u => {
       const wrap = document.createElement('div');
@@ -1421,17 +1602,14 @@ function renderEditor(){
       const grid = document.createElement('div');
       grid.className = 'members';
       u.members.forEach(m => grid.appendChild(memberCard(u, m, true)));
-      wrap.appendChild(grid);
-      host.appendChild(wrap);
+      wrap.appendChild(grid); host.appendChild(wrap);
     });
   }
 }
-
 function memberCard(unit, member, removable){
   const card = document.createElement('div');
   card.className = 'pcard';
-  card.dataset.unitId = unit.id;
-  card.dataset.memberId = member.id;
+  card.dataset.unitId = unit.id; card.dataset.memberId = member.id;
   card.innerHTML = `
     <div class="preview" data-action="photo" data-unit-id="${unit.id}" data-member-id="${member.id}" title="Trocar foto">
       ${svgAvatar(member.gender, member.photo, unit.color)}
@@ -1447,14 +1625,10 @@ function memberCard(unit, member, removable){
   `;
   return card;
 }
-
 document.getElementById('editor').addEventListener('click', e => {
   const t = e.target.closest('[data-action]');
   if (!t) return;
-  const action = t.dataset.action;
-  const unitId = t.dataset.unitId;
-  const memberId = t.dataset.memberId;
-
+  const action = t.dataset.action, unitId = t.dataset.unitId, memberId = t.dataset.memberId;
   if (action === 'photo'){
     const inp = document.createElement('input');
     inp.type = 'file'; inp.accept = 'image/*';
@@ -1474,18 +1648,15 @@ document.getElementById('editor').addEventListener('click', e => {
   } else if (action === 'add-member'){
     const u = findUnit(unitId);
     if (u && u.members.length < 50){
-      u.members.push(mkMember('Membro ' + (u.members.length+1)));
-      renderEditor();
+      u.members.push(mkMember('Membro ' + (u.members.length+1))); renderEditor();
     }
   } else if (action === 'remove-member'){
     const u = findUnit(unitId);
     if (u && u.members.length > 1){
-      u.members = u.members.filter(m => m.id !== memberId);
-      renderEditor();
+      u.members = u.members.filter(m => m.id !== memberId); renderEditor();
     }
   }
 });
-
 document.getElementById('editor').addEventListener('input', e => {
   const el = e.target;
   if (el.matches('input.pname')){
@@ -1528,11 +1699,10 @@ function iniciarJogo(){
   state.turn = 1;
   state.ended = false;
 
-  // Em modo pontuação com limite: total de turnos = rodadas × unidades
   if (state.roundMode === 'score' && state.roundLimitEnabled){
     state.totalTurns = state.roundsPerUnit * state.units.length;
   } else {
-    state.totalTurns = 0; // sem limite
+    state.totalTurns = 0;
   }
 
   document.getElementById('setup').classList.add('hidden');
@@ -1543,7 +1713,6 @@ function iniciarJogo(){
   updateTopInfo();
   requestAnimationFrame(() => { layoutArena(); });
   setTimeout(layoutArena, 60);
-
   startTurn();
 }
 
@@ -1554,8 +1723,7 @@ function renderArena(){
     u.members.forEach(m => {
       const el = document.createElement('div');
       el.className = 'player';
-      el.dataset.unitId = u.id;
-      el.dataset.memberId = m.id;
+      el.dataset.unitId = u.id; el.dataset.memberId = m.id;
       el.innerHTML = `
         <div class="pscale">
           <div class="nameplate" style="--nc:${u.color}">${escapeHtml(m.name)}</div>
@@ -1573,19 +1741,16 @@ function renderArena(){
     });
   });
 }
-
 function layoutArena(){
   const arena = document.getElementById('arena');
   const wrap = arena.parentElement;
   const r = wrap.getBoundingClientRect();
   const size = Math.max(240, Math.min(r.width, r.height) - 24);
-  arena.style.width = size + 'px';
-  arena.style.height = size + 'px';
+  arena.style.width = size + 'px'; arena.style.height = size + 'px';
   const baseW = Math.max(30, Math.min(84, size * 0.082));
   arena.style.setProperty('--w', baseW.toFixed(1) + 'px');
   const players = [...arena.querySelectorAll('.player')];
-  const n = players.length;
-  if (!n) return;
+  const n = players.length; if (!n) return;
   const radius = 0.33;
   players.forEach((p, i) => {
     const ang = (i / n) * Math.PI * 2 - Math.PI / 2;
@@ -1597,7 +1762,6 @@ function layoutArena(){
     p.style.zIndex = 100 + Math.round(sinA * 60);
   });
 }
-
 window.addEventListener('resize', () => {
   if (!document.getElementById('game').classList.contains('hidden')) layoutArena();
 });
@@ -1643,7 +1807,6 @@ function renderPanel(){
     }
   });
 }
-
 document.getElementById('panelList').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]');
   if (!b) return;
@@ -1651,24 +1814,17 @@ document.getElementById('panelList').addEventListener('click', e => {
 });
 
 /* ============================================================
-   TURNO / PERGUNTAS
+   TURNO
 ============================================================ */
 let timerInterval = null;
-
 function currentUnit(){ return state.units[state.currentIdx] || null; }
-
 function showMessage(html){
-  const el = document.getElementById('csMsg');
-  if (el) el.innerHTML = html;
-  const t = document.getElementById('csTurn');
-  if (t) t.textContent = state.turn;
+  const el = document.getElementById('csMsg'); if (el) el.innerHTML = html;
+  const t = document.getElementById('csTurn'); if (t) t.textContent = state.turn;
 }
-
 function updateTopInfo(){
   document.getElementById('pillMode').innerHTML = state.mode === 'individual' ? '👤 Individual' : '👥 Equipes';
   document.getElementById('pillRMode').innerHTML = state.roundMode === 'elimination' ? '🕳️ Errou caiu' : '🏆 Pontuação';
-
-  // Pill de turno / progresso de rodadas
   const turnEl = document.getElementById('pillTurn');
   if (state.roundMode === 'score' && state.roundLimitEnabled && state.totalTurns > 0){
     const units = state.units.length || 1;
@@ -1679,18 +1835,14 @@ function updateTopInfo(){
     turnEl.innerHTML = `Turno <b>${state.turn}</b>`;
     turnEl.classList.remove('progress');
   }
-
   const u = currentUnit();
   document.getElementById('pillNow').innerHTML = u ? `Vez de <b>${escapeHtml(unitDisplayName(u))}</b>` : '—';
 }
-
 function highlightCurrent(){
   document.querySelectorAll('.player.picked').forEach(el => el.classList.remove('picked'));
-  const u = currentUnit();
-  if (!u || !u.alive) return;
+  const u = currentUnit(); if (!u || !u.alive) return;
   document.querySelectorAll(`.player[data-unit-id="${u.id}"]`).forEach(el => el.classList.add('picked'));
 }
-
 function drawQuestion(){
   if (!state.useQuestions || !state.questions.length) return null;
   let available = state.questions.filter(q => !q.used && q.q.trim() && q.a.trim());
@@ -1700,10 +1852,8 @@ function drawQuestion(){
   }
   if (!available.length) return null;
   const q = available[Math.floor(Math.random() * available.length)];
-  q.used = true;
-  return q;
+  q.used = true; return q;
 }
-
 function renderQuestionUI(){
   const wrap = document.getElementById('csQuestion');
   const ans = document.getElementById('csAnswer');
@@ -1719,43 +1869,30 @@ function renderQuestionUI(){
   stageCard.classList.remove('result-mode');
 
   if (!state.currentQuestion){
-    wrap.classList.add('hidden');
-    ans.classList.add('hidden');
-    inputWrap.classList.add('hidden');
-    warn.classList.remove('hidden');
-    secondary.classList.remove('hidden');
-    updateSecondary();
-    return;
+    wrap.classList.add('hidden'); ans.classList.add('hidden');
+    inputWrap.classList.add('hidden'); warn.classList.remove('hidden');
+    secondary.classList.remove('hidden'); updateSecondary(); return;
   }
-
-  wrap.classList.remove('hidden');
-  warn.classList.add('hidden');
+  wrap.classList.remove('hidden'); warn.classList.add('hidden');
   qText.textContent = state.currentQuestion.q;
   if (state.answerRevealed){
     ans.classList.remove('hidden');
     aText.textContent = state.currentQuestion.a;
-  } else {
-    ans.classList.add('hidden');
-  }
+  } else ans.classList.add('hidden');
 
   if (state.turnActive && !state.answerRevealed){
     inputWrap.classList.remove('hidden');
     input.classList.remove('ok','no');
-    input.disabled = false;
-    input.value = '';
+    input.disabled = false; input.value = '';
     confirmBtn.disabled = false;
   } else if (state.turnActive && state.answerRevealed){
     inputWrap.classList.remove('hidden');
-    input.disabled = true;
-    confirmBtn.disabled = true;
-  } else {
-    inputWrap.classList.add('hidden');
-  }
+    input.disabled = true; confirmBtn.disabled = true;
+  } else inputWrap.classList.add('hidden');
 
   secondary.classList.remove('hidden');
   updateSecondary();
 }
-
 function updateSecondary(){
   const reveal = document.getElementById('scReveal');
   const pause = document.getElementById('scPause');
@@ -1765,10 +1902,8 @@ function updateSecondary(){
   reveal.disabled = !active || state.answerRevealed || !state.currentQuestion;
   pause.disabled = !active || !state.timerEnabled || state.timerDuration <= 0;
   pause.textContent = state.timerPaused ? '▶ Continuar' : '⏸ Pausar';
-  fOk.disabled = !active;
-  fNo.disabled = !active;
+  fOk.disabled = !active; fNo.disabled = !active;
 }
-
 function confirmTyped(){
   if (!state.turnActive) return;
   if (!state.currentQuestion) return;
@@ -1776,38 +1911,29 @@ function confirmTyped(){
   const typed = input.value.trim();
   if (!typed){
     input.classList.add('no');
-    setTimeout(() => input.classList.remove('no'), 500);
-    return;
+    setTimeout(() => input.classList.remove('no'), 500); return;
   }
   const isCorrect = checkTypedAnswer(typed, state.currentQuestion.a);
-  const u = currentUnit();
-  if (!u) return;
+  const u = currentUnit(); if (!u) return;
   handleAnswer(u.id, isCorrect, typed, false);
 }
-
 function forceAnswer(correct){
   if (!state.turnActive) return;
-  const u = currentUnit();
-  if (!u) return;
+  const u = currentUnit(); if (!u) return;
   handleAnswer(u.id, correct, null, true);
 }
-
 document.getElementById('scConfirm').addEventListener('click', confirmTyped);
 document.getElementById('scForceOk').addEventListener('click', () => forceAnswer(true));
 document.getElementById('scForceNo').addEventListener('click', () => forceAnswer(false));
 document.getElementById('scReveal').addEventListener('click', revealAnswer);
 document.getElementById('scPause').addEventListener('click', togglePause);
-
 document.getElementById('csInput').addEventListener('keydown', e => {
   if (e.key === 'Enter'){ e.preventDefault(); confirmTyped(); }
 });
-
 function revealAnswer(){
   if (!state.currentQuestion || state.answerRevealed) return;
-  state.answerRevealed = true;
-  renderQuestionUI();
+  state.answerRevealed = true; renderQuestionUI();
 }
-
 function startTimer(){
   stopTimer();
   const el = document.getElementById('csTimer');
@@ -1826,8 +1952,7 @@ function tickTimer(){
 }
 function stopTimer(){ if (timerInterval){ clearInterval(timerInterval); timerInterval = null; } }
 function updateTimerDisplay(){
-  const el = document.getElementById('csTimer');
-  if (!el) return;
+  const el = document.getElementById('csTimer'); if (!el) return;
   el.innerHTML = `${state.timerRemaining}<span class="sc-timer-s">s</span>`;
   el.classList.toggle('warn', state.timerRemaining <= 10 && state.timerRemaining > 0 && !state.timerPaused);
   el.classList.toggle('paused', state.timerPaused);
@@ -1836,8 +1961,7 @@ function togglePause(){
   if (!state.turnActive) return;
   if (!state.timerEnabled || state.timerDuration <= 0) return;
   state.timerPaused = !state.timerPaused;
-  updateSecondary();
-  updateTimerDisplay();
+  updateSecondary(); updateTimerDisplay();
 }
 function onTimeOut(){
   if (!state.turnActive) return;
@@ -1845,16 +1969,13 @@ function onTimeOut(){
   const u = currentUnit();
   if (u) handleAnswer(u.id, false, null, true);
 }
-
 function startTurn(){
   if (state.ended) return;
   state.turnActive = true;
   state.answerRevealed = false;
   state.currentQuestion = drawQuestion();
   renderQuestionUI();
-  updateTopInfo();
-  highlightCurrent();
-  renderPanel();
+  updateTopInfo(); highlightCurrent(); renderPanel();
   const u = currentUnit();
   showMessage(`Vez de <b>${escapeHtml(unitDisplayName(u))}</b>`);
   startTimer();
@@ -1865,7 +1986,6 @@ function startTurn(){
     }, 120);
   }
 }
-
 function highlightUnit(unitId, cls){
   document.querySelectorAll(`.player[data-unit-id="${unitId}"]`).forEach(el => {
     el.classList.remove('correct','wrong');
@@ -1879,7 +1999,6 @@ function highlightUnit(unitId, cls){
     setTimeout(() => row.classList.remove('ok','no'), 1200);
   }
 }
-
 function shrinkCardForResult(){
   document.getElementById('csSecondary').classList.add('hidden');
   document.getElementById('csInputWrap').classList.add('hidden');
@@ -1889,23 +2008,22 @@ function shrinkCardForResult(){
   document.getElementById('stageCard').classList.add('result-mode');
 }
 
+/* ============================================================
+   FLUXO DO JOGO
+============================================================ */
 function advanceTurn(){
   if (state.ended) return;
 
-  // Verifica limite de rodadas no modo pontuação
+  // Limite de rodadas no modo pontuação -> gran finale
   if (state.roundMode === 'score' && state.roundLimitEnabled && state.totalTurns > 0){
-    // state.turn é o próximo turno a ser jogado. Se já passou do total, encerra.
-    if (state.turn > state.totalTurns){
-      renderPanel();
-      updateTopInfo();
-      const sorted = [...state.units].sort((a,b) => b.points - a.points);
-      endGame(sorted[0] || null);
+    if (state.turn >= state.totalTurns){
+      renderPanel(); updateTopInfo();
+      playFinale();
       return;
     }
   }
 
-  renderPanel();
-  updateTopInfo();
+  renderPanel(); updateTopInfo();
 
   const alive = state.units.filter(x => x.alive);
   if (state.roundMode === 'elimination' && alive.length <= 1){
@@ -1915,8 +2033,7 @@ function advanceTurn(){
 
   state.turn += 1;
   nextAlive();
-  updateTopInfo();
-  highlightCurrent();
+  updateTopInfo(); highlightCurrent();
   startTurn();
 }
 
@@ -1945,7 +2062,7 @@ async function handleAnswer(unitId, correct, typed, forced){
     if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
     showMessage(msg);
     shrinkCardForResult();
-    setTimeout(advanceTurn, 1600);
+    setTimeout(advanceTurn, 1500);
     return;
   }
 
@@ -1957,11 +2074,11 @@ async function handleAnswer(unitId, correct, typed, forced){
     if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
     showMessage(msg);
     shrinkCardForResult();
-    setTimeout(advanceTurn, 1600);
+    setTimeout(advanceTurn, 1500);
     return;
   }
 
-  /* ERRO — modo eliminação: cai no buraco */
+  /* ERRO — modo eliminação: cai no buraco em destaque */
   u.alive = false;
   u.members.forEach(m => { m.alive = false; });
 
@@ -1991,7 +2108,6 @@ async function handleAnswer(unitId, correct, typed, forced){
 
   setTimeout(advanceTurn, 700);
 }
-
 function nextAlive(){
   const n = state.units.length;
   for (let k = 0; k < n; k++){
@@ -2000,6 +2116,196 @@ function nextAlive(){
   }
 }
 
+/* ============================================================
+   GRAN FINALE — suspense, placar, spotlight, quedas e campeão
+============================================================ */
+async function playFinale(){
+  state.ended = true;
+  state.turnActive = false;
+  stopTimer();
+  document.querySelectorAll('.player.picked').forEach(el => el.classList.remove('picked'));
+
+  const arena = document.getElementById('arena');
+  const arenaPlayers = [...arena.querySelectorAll('.player')];
+
+  // Reset classes de estado
+  arenaPlayers.forEach(el => el.classList.remove('picked','fell','out','wrong','correct','spotlight','dimmed'));
+
+  // Ranking
+  const sorted = [...state.units].sort((a,b) => b.points - a.points);
+  const topScore = sorted[0] ? sorted[0].points : 0;
+  const winners = sorted.filter(u => u.points === topScore);
+  const losers  = sorted.filter(u => u.points <  topScore);
+
+  const overlay = document.getElementById('finaleOverlay');
+  const badge = document.getElementById('finaleBadge');
+  const title = document.getElementById('finaleTitle');
+  const scoresEl = document.getElementById('finaleScores');
+  const countdownEl = document.getElementById('finaleCountdown');
+
+  // ---- FASE 1: Suspense ----
+  badge.textContent = '🎬 FIM DAS RODADAS';
+  title.textContent = 'Apuando o placar…';
+  scoresEl.innerHTML = '';
+  scoresEl.classList.add('hidden');
+  countdownEl.textContent = '';
+  countdownEl.classList.add('hidden');
+
+  overlay.classList.remove('hidden');
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
+
+  await wait(1800);
+
+  // ---- FASE 2: Placar revelado ----
+  title.textContent = 'PLACAR FINAL';
+  scoresEl.classList.remove('hidden');
+
+  sorted.forEach((u, i) => {
+    const isWinner = u.points === topScore;
+    const row = document.createElement('div');
+    row.className = 'finale-score-row ' + (isWinner ? 'winner' : 'loser');
+    row.style.animationDelay = (i * 0.12) + 's';
+    row.innerHTML = `
+      <span class="pos">${i+1}º</span>
+      <span class="dot" style="background:${u.color}"></span>
+      <span class="name">${escapeHtml(unitDisplayName(u))}</span>
+      <span class="pts">${u.points}</span>
+    `;
+    scoresEl.appendChild(row);
+  });
+
+  await wait(3000);
+
+  // ---- FASE 3: Contagem ----
+  scoresEl.classList.add('hidden');
+  title.textContent = 'E o vencedor é…';
+  countdownEl.classList.remove('hidden');
+
+  for (const n of ['3','2','1']){
+    countdownEl.textContent = n;
+    countdownEl.classList.remove('pulse');
+    void countdownEl.offsetWidth;
+    countdownEl.classList.add('pulse');
+    await wait(850);
+  }
+
+  countdownEl.classList.add('hidden');
+
+  // ---- FASE 4: Spotlight no vencedor ----
+  overlay.classList.remove('show');
+  await wait(500);
+  overlay.classList.add('hidden');
+
+  // Esconde o card central para dar espaço à roda
+  document.getElementById('stageCard').classList.add('result-mode');
+  document.getElementById('csMsg').innerHTML = '<span class="g">🏆 Revelando o vencedor…</span>';
+
+  arenaPlayers.forEach(el => el.classList.add('dimmed'));
+  winners.forEach(w => {
+    arena.querySelectorAll(`.player[data-unit-id="${w.id}"]`).forEach(el => {
+      el.classList.remove('dimmed');
+      el.classList.add('spotlight');
+    });
+  });
+
+  await wait(1800);
+
+  // ---- FASE 5: Perdedores caem em sequência (último primeiro) ----
+  const fallOrder = [...losers].reverse(); // último colocado cai primeiro
+
+  for (const loser of fallOrder){
+    await makeUnitFallInArena(loser, arena);
+    await wait(350);
+  }
+
+  // ---- FASE 6: Celebração ----
+  await wait(700);
+  showWinnerOverlay(winners, topScore);
+}
+
+function makeUnitFallInArena(unit, arena){
+  return new Promise(resolve => {
+    const players = unit.members
+      .map(m => arena.querySelector(`.player[data-member-id="${m.id}"]`))
+      .filter(Boolean);
+
+    if (!players.length){ resolve(); return; }
+
+    players.forEach((el, idx) => {
+      el.classList.remove('dimmed','spotlight');
+      el.classList.add('wrong');
+
+      setTimeout(() => {
+        el.classList.remove('wrong');
+        const hole = el.querySelector('.hole');
+        if (hole) hole.classList.add('open');
+      }, 300 + idx * 100);
+
+      setTimeout(() => {
+        const doll = el.querySelector('.doll');
+        if (doll) doll.classList.add('falling');
+      }, 800 + idx * 100);
+
+      setTimeout(() => el.classList.add('out'), 1900 + idx * 100);
+    });
+
+    setTimeout(() => {
+      arena.classList.add('shake');
+      setTimeout(() => arena.classList.remove('shake'), 600);
+    }, 1800);
+
+    setTimeout(resolve, 2300);
+  });
+}
+
+function showWinnerOverlay(winners, topScore){
+  const isTie = winners.length > 1;
+  const titleTxt = state.mode === 'team'
+    ? (isTie ? 'EMPATE ENTRE EQUIPES' : 'EQUIPE VENCEDORA')
+    : (isTie ? 'EMPATE' : 'VENCEDOR');
+  const nameTxt = isTie
+    ? winners.map(w => unitDisplayName(w)).join(' · ')
+    : unitDisplayName(winners[0]);
+  const subTxt = `${topScore} ponto${topScore === 1 ? '' : 's'}`;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'winner-overlay';
+  overlay.innerHTML = `
+    <div class="winner-card">
+      <div class="winner-trophy">🏆</div>
+      <div class="winner-title">${titleTxt}</div>
+      <div class="winner-name">${escapeHtml(nameTxt)}</div>
+      <div class="winner-score">${subTxt}</div>
+      <button class="btn primary winner-btn" onclick="location.reload()">Jogar novamente</button>
+    </div>
+    <div class="confetti" id="confetti"></div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('show'));
+  spawnConfetti();
+}
+
+function spawnConfetti(){
+  const container = document.getElementById('confetti');
+  if (!container) return;
+  const colors = ['#ffc93c','#ff3b5c','#25d366','#3ba7ff','#a855f7','#ec4899','#f97316','#ffffff'];
+  for (let i = 0; i < 90; i++){
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDelay = (Math.random() * 2.5) + 's';
+    p.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = (10 + Math.random() * 10) + 'px';
+    container.appendChild(p);
+  }
+}
+
+/* ============================================================
+   FIM DE JOGO — eliminação (sobra 1) ou botão encerrar
+============================================================ */
 function endGame(winner){
   state.ended = true;
   state.turnActive = false;
@@ -2027,28 +2333,31 @@ function endGame(winner){
   }
 
   const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:99999;
-    display:grid; place-items:center; padding:20px; animation:fadeIn .4s ease;`;
+  overlay.className = 'winner-overlay';
   overlay.innerHTML = `
-    <div style="text-align:center; max-width:520px; width:100%; padding:44px 30px;
-      background:linear-gradient(180deg,#1a2540,#0a0f1c);
-      border:1px solid rgba(255,201,60,.35); border-radius:24px;
-      box-shadow:0 30px 80px rgba(0,0,0,.75);">
-      <div style="font-size:72px; margin-bottom:8px; line-height:1;">🏆</div>
-      <div style="font-size:13px; letter-spacing:4px; color:var(--gold); font-weight:900; margin-bottom:10px;">${titleTxt}</div>
-      <div style="font-size:clamp(26px,6vw,38px); font-weight:900; margin-bottom:16px; color:#fff; line-height:1.15;">${escapeHtml(nameTxt)}</div>
-      ${subTxt ? `<div style="color:var(--muted); font-size:14px; margin-bottom:28px;">${escapeHtml(subTxt)}</div>` : ''}
-      <button class="btn primary" style="padding:14px 28px; font-size:15px;" onclick="location.reload()">Jogar novamente</button>
+    <div class="winner-card">
+      <div class="winner-trophy">🏆</div>
+      <div class="winner-title">${titleTxt}</div>
+      <div class="winner-name">${escapeHtml(nameTxt)}</div>
+      ${subTxt ? `<div class="winner-score">${escapeHtml(subTxt)}</div>` : ''}
+      <button class="btn primary winner-btn" onclick="location.reload()">Jogar novamente</button>
     </div>
   `;
   document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('show'));
 }
 
 function encerrar(){
   if (state.ended) return;
   if (!confirm('Encerrar o jogo agora e mostrar o vencedor?')) return;
-  const sorted = [...state.units].sort((a,b) => b.points - a.points);
-  endGame(sorted[0] || null);
+
+  if (state.roundMode === 'score'){
+    // Modo pontuação: chama o gran finale
+    playFinale();
+  } else {
+    const sorted = [...state.units].sort((a,b) => b.points - a.points);
+    endGame(sorted[0] || null);
+  }
 }
 
 if ('serviceWorker' in navigator) {
