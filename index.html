@@ -485,7 +485,6 @@ input,textarea{ font-family:inherit; }
 }
 .doll svg{ width:100%; height:auto; display:block; }
 
-/* BURACO — maior, mais escuro, com lábios visíveis */
 .hole{
   position:absolute; top:82%; left:50%;
   transform:translateX(-50%);
@@ -513,7 +512,6 @@ input,textarea{ font-family:inherit; }
 .hole.open .dl{ transform:translate(-118%,26%) rotate(-28deg); opacity:0; }
 .hole.open .dr{ transform:translate(118%,26%) rotate(28deg); opacity:0; }
 
-/* Flash vermelho ao abrir */
 .hole.open::before{
   content:'';
   position:absolute; inset:-40%;
@@ -536,45 +534,37 @@ input,textarea{ font-family:inherit; }
   100% { box-shadow: inset 0 10px 22px #000, inset 0 -6px 12px #000, 0 0 26px #000; }
 }
 
-/* QUEDA — boneco tomba, gira e afunda no buraco */
 .doll.falling{
   z-index:0;
-  animation:fall 1.35s cubic-bezier(.42,0,.66,.28) forwards;
+  animation:fall 1.4s cubic-bezier(.42,0,.66,.28) forwards;
 }
 @keyframes fall{
-  /* 0% — em pé */
   0% {
     transform: translateY(0) rotate(0deg) scale(1);
     opacity: 1;
   }
-  /* 8% — antecipação: sobe um pouco e recua */
   8% {
     transform: translateY(-9%) rotate(-4deg) scale(1.04);
     opacity: 1;
   }
-  /* 22% — balança para frente na beira */
   22% {
     transform: translateY(-1%) rotate(7deg) scale(1.02);
     opacity: 1;
   }
-  /* 36% — desequilibra para trás */
   36% {
     transform: translateY(7%) rotate(-6deg) scale(.99);
     opacity: 1;
   }
-  /* 52% — tomba de vez */
   52% {
-    transform: translateY(30%) rotate(26deg) scale(.84);
+    transform: translateY(32%) rotate(26deg) scale(.84);
     opacity: 1;
   }
-  /* 72% — já está afundando */
   72% {
-    transform: translateY(62%) rotate(52deg) scale(.58);
-    opacity: .92;
+    transform: translateY(68%) rotate(52deg) scale(.55);
+    opacity: .9;
   }
-  /* 100% — engolido */
   100% {
-    transform: translateY(115%) rotate(78deg) scale(.24);
+    transform: translateY(125%) rotate(80deg) scale(.2);
     opacity: 0;
   }
 }
@@ -1629,6 +1619,35 @@ function highlightUnit(unitId, cls){
   }
 }
 
+/* Prepara o card para o modo "aguardando queda" (mensagem no topo) */
+function shrinkCardForResult(){
+  document.getElementById('csSecondary').classList.add('hidden');
+  document.getElementById('csInputWrap').classList.add('hidden');
+  document.getElementById('csQuestion').classList.add('hidden');
+  document.getElementById('csWarn').classList.add('hidden');
+  document.getElementById('csAnswer').classList.add('hidden');
+  document.getElementById('stageCard').classList.add('result-mode');
+}
+
+/* Avança para o próximo turno (ou encerra) */
+function advanceTurn(){
+  if (state.ended) return;
+  renderPanel();
+  updateTopInfo();
+
+  const alive = state.units.filter(x => x.alive);
+  if (state.roundMode === 'elimination' && alive.length <= 1){
+    endGame(alive[0] || null);
+    return;
+  }
+
+  state.turn += 1;
+  nextAlive();
+  updateTopInfo();
+  highlightCurrent();
+  startTurn();
+}
+
 function handleAnswer(unitId, correct, typed, forced){
   if (state.ended || !state.turnActive) return;
   const u = state.units.find(x => x.id === unitId);
@@ -1648,92 +1667,56 @@ function handleAnswer(unitId, correct, typed, forced){
   }
 
   const arena = document.getElementById('arena');
-  const stageCard = document.getElementById('stageCard');
 
-  // --- ACERTO ---
+  /* ---------- ACERTO ---------- */
   if (correct){
     u.points += 1;
     highlightUnit(u.id, 'correct');
     let msg = `<span class="g">✓ ${escapeHtml(unitDisplayName(u))} acertou!</span>`;
     if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
     showMessage(msg);
-
-    document.getElementById('csSecondary').classList.add('hidden');
-    document.getElementById('csInputWrap').classList.add('hidden');
-    document.getElementById('csQuestion').classList.add('hidden');
-    document.getElementById('csWarn').classList.add('hidden');
-    document.getElementById('csAnswer').classList.add('hidden');
-    stageCard.classList.add('result-mode');
-
-    setTimeout(() => {
-      renderPanel();
-      updateTopInfo();
-      state.turn += 1;
-      nextAlive();
-      updateTopInfo();
-      highlightCurrent();
-      startTurn();
-    }, 1600);
+    shrinkCardForResult();
+    setTimeout(advanceTurn, 1600);
     return;
   }
 
-  // --- ERRO em modo pontuação (sem cair) ---
+  /* ---------- ERRO em modo pontuação ---------- */
   if (state.roundMode === 'score'){
     u.points -= 1;
     highlightUnit(u.id, 'wrong');
     let msg = `<span class="r">✗ ${escapeHtml(unitDisplayName(u))} errou! −1 ponto</span>`;
     if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
     showMessage(msg);
-
-    document.getElementById('csSecondary').classList.add('hidden');
-    document.getElementById('csInputWrap').classList.add('hidden');
-    document.getElementById('csQuestion').classList.add('hidden');
-    document.getElementById('csWarn').classList.add('hidden');
-    document.getElementById('csAnswer').classList.add('hidden');
-    stageCard.classList.add('result-mode');
-
-    setTimeout(() => {
-      renderPanel();
-      updateTopInfo();
-      state.turn += 1;
-      nextAlive();
-      updateTopInfo();
-      highlightCurrent();
-      startTurn();
-    }, 1600);
+    shrinkCardForResult();
+    setTimeout(advanceTurn, 1600);
     return;
   }
 
-  // --- ERRO em modo eliminação: cai no buraco ---
+  /* ---------- ERRO em modo eliminação: cai no buraco ---------- */
   u.alive = false;
   u.members.forEach(m => { m.alive = false; });
   let msg = `<span class="r">✗ ${escapeHtml(unitDisplayName(u))} errou e caiu!</span>`;
   if (typed) msg += `<span class="typed">Respondeu: <i>${escapeHtml(typed)}</i></span>`;
   showMessage(msg);
+  shrinkCardForResult();
 
-  // Encolhe o card pro topo e libera a arena
-  document.getElementById('csSecondary').classList.add('hidden');
-  document.getElementById('csInputWrap').classList.add('hidden');
-  document.getElementById('csQuestion').classList.add('hidden');
-  document.getElementById('csWarn').classList.add('hidden');
-  document.getElementById('csAnswer').classList.add('hidden');
-  stageCard.classList.add('result-mode');
+  const players = u.members
+    .map(m => arena.querySelector(`.player[data-member-id="${m.id}"]`))
+    .filter(Boolean);
 
-  // Sequência da queda:
-  //   0ms   → mensagem
-  //   400ms → buraco abre (0.75s)
-  //   900ms → boneco começa a cair (1.35s)
-  //   1900ms → arena treme (impacto)
-  //   2600ms → próximo turno
-  const players = u.members.map(m => arena.querySelector(`.player[data-member-id="${m.id}"]`)).filter(Boolean);
+  // Sem ninguém pra animar: avança direto
+  if (!players.length){
+    setTimeout(advanceTurn, 800);
+    return;
+  }
 
-  // Tremor inicial
+  // Tremor inicial dos bonecos
   players.forEach(el => {
     el.classList.add('wrong');
     setTimeout(() => el.classList.remove('wrong'), 480);
   });
 
-  // Abre buraco
+  // Abre o buraco (portinholas)
   setTimeout(() => {
     players.forEach((el, idx) => {
       setTimeout(() => {
@@ -1743,40 +1726,46 @@ function handleAnswer(unitId, correct, typed, forced){
     });
   }, 400);
 
-  // Boneco cai
+  // Só depois que TODOS os bonecos terminarem a animação de queda é que o
+  // próximo turno é liberado. Usamos `animationend` para garantir que a
+  // pergunta só apareça depois que o participante caiu TOTALMENTE no buraco.
   setTimeout(() => {
+    let remaining = players.length;
+    let advanced = false;
+
+    function onOneFallComplete(){
+      remaining--;
+      if (remaining > 0 || advanced) return;
+      advanced = true;
+
+      // Impacto: arena treme + nomes riscados
+      arena.classList.add('shake');
+      setTimeout(() => arena.classList.remove('shake'), 600);
+      players.forEach(el => el.classList.add('out'));
+
+      // Aguarda o impacto + um respiro antes de chamar o próximo turno
+      setTimeout(advanceTurn, 900);
+    }
+
     players.forEach((el, idx) => {
       setTimeout(() => {
         const doll = el.querySelector('.doll');
-        if (doll) doll.classList.add('falling');
+        if (!doll){ onOneFallComplete(); return; }
+
+        // Fallback: se `animationend` não disparar (reduzir movimento, aba em
+        // segundo plano, etc.), libera o próximo turno por tempo.
+        const fallbackMs = 1700;
+        const fallbackTimer = setTimeout(onOneFallComplete, fallbackMs);
+
+        doll.addEventListener('animationend', () => {
+          clearTimeout(fallbackTimer);
+          onOneFallComplete();
+        }, { once: true });
+
+        doll.classList.add('falling');
       }, idx * 90);
     });
   }, 900);
-
-  // Impacto: arena treme + marca nome riscado
-  setTimeout(() => {
-    arena.classList.add('shake');
-    setTimeout(() => arena.classList.remove('shake'), 600);
-    players.forEach(el => el.classList.add('out'));
-  }, 1900);
-
-  // Próximo turno
-  setTimeout(() => {
-    renderPanel();
-    updateTopInfo();
-
-    const alive = state.units.filter(x => x.alive);
-    if (alive.length <= 1){
-      endGame(alive[0] || null);
-      return;
-    }
-
-    state.turn += 1;
-    nextAlive();
-    updateTopInfo();
-    highlightCurrent();
-    startTurn();
-  }, 2700);
 }
 
 function nextAlive(){
