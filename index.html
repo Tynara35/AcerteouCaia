@@ -819,6 +819,59 @@ const Sound = (() => {
         setTimeout(() => t(f, 0.4, { vol: 0.26, type: 'triangle' }), i * 130));
       setTimeout(() => [523, 659, 784, 1046].forEach(f => t(f, 1.4, { vol: 0.18 })), 850);
     },
+        applause: () => {
+      if (!enabled) return;
+      if (!ctx && !init()) return;
+      resume();
+      const now = ctx.currentTime;
+      const duration = 3.6;
+      const sr = ctx.sampleRate;
+      const len = Math.floor(sr * duration);
+      const buf = ctx.createBuffer(1, len, sr);
+      const d = buf.getChannelData(0);
+
+      // Simula aplauso: ruído branco + envelope de palmas aleatórias
+      let clapEnv = 0;
+      const attack = 0.18;
+      const release = 1.6;
+      for (let i = 0; i < len; i++){
+        const tsec = i / sr;
+        const overall = tsec < attack ? (tsec / attack) : Math.exp(-(tsec - attack) / release);
+        // cada "palma" é um spike curto que decai rápido
+        if (Math.random() < 0.014) clapEnv = 0.85 + Math.random() * 0.6;
+        clapEnv *= 0.93;
+        // mistura de ruído + claps individuais
+        d[i] = (Math.random() * 2 - 1) * overall * (0.25 + clapEnv * 0.75);
+      }
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const flt = ctx.createBiquadFilter();
+      flt.type = 'bandpass';
+      flt.frequency.value = 2200;
+      flt.Q.value = 0.8;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.55;
+      src.connect(flt); flt.connect(gain); gain.connect(master);
+      src.start(now); src.stop(now + duration + 0.1);
+
+      // Assobio de festa por cima (curto e agudo)
+      setTimeout(() => {
+        if (!enabled || !ctx) return;
+        const t0 = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1800, t0);
+        osc.frequency.exponentialRampToValueAtTime(2400, t0 + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(1900, t0 + 0.35);
+        g2.gain.setValueAtTime(0, t0);
+        g2.gain.linearRampToValueAtTime(0.10, t0 + 0.05);
+        g2.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+        osc.connect(g2); g2.connect(master);
+        osc.start(t0); osc.stop(t0 + 0.5);
+      }, 250);
+    },
     confetti: () => { for (let i = 0; i < 8; i++)
       setTimeout(() => { n(0.08, { filter: 'highpass', from: 3000, vol: 0.12 });
                          t(1500 + Math.random() * 800, 0.06, { vol: 0.06 }); }, i * 90); },
@@ -2140,7 +2193,8 @@ function showWinnerOverlay(winners, topScore){
   `;
   document.body.appendChild(overlay);
   requestAnimationFrame(() => overlay.classList.add('show'));
-  Sound.fanfare();
+    Sound.fanfare();
+  Sound.applause();
   setTimeout(() => Sound.confetti(), 400);
   spawnConfetti();
 }
@@ -2196,7 +2250,8 @@ function endGame(winner){
   `;
   document.body.appendChild(overlay);
   requestAnimationFrame(() => overlay.classList.add('show'));
-  Sound.fanfare();
+    Sound.fanfare();
+  Sound.applause();
   setTimeout(() => Sound.confetti(), 300);
 }
 function encerrar(){
