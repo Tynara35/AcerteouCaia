@@ -29,7 +29,7 @@ body{
 }
 .hidden{ display:none !important; }
 button{ font-family:inherit; cursor:pointer; }
-input,textarea{ font-family:inherit; }
+input,textarea,select{ font-family:inherit; }
 ::-webkit-scrollbar{ width:9px; height:9px; }
 ::-webkit-scrollbar-track{ background:rgba(255,255,255,.03); }
 ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.14); border-radius:9px; }
@@ -111,7 +111,6 @@ input,textarea{ font-family:inherit; }
 .toggle input{ width:18px; height:18px; accent-color:var(--gold); cursor:pointer; }
 .toggle.on{ border-color:rgba(255,201,60,.5); background:rgba(255,201,60,.1); }
 
-/* Card de verificação de perguntas */
 .check-card{
   border:1.5px solid rgba(255,255,255,.12);
   transition:border-color .25s, background .25s, box-shadow .25s;
@@ -143,9 +142,7 @@ input,textarea{ font-family:inherit; }
   font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase;
   color:var(--muted); font-weight:900; margin-bottom:6px;
 }
-.check-cell .val{
-  font-size:24px; font-weight:900; color:#fff; line-height:1;
-}
+.check-cell .val{ font-size:24px; font-weight:900; color:#fff; line-height:1; }
 .check-cell.req .val{ color:var(--gold); }
 .check-cell.have .val{ color:#3ba7ff; }
 .check-status{
@@ -215,6 +212,7 @@ input,textarea{ font-family:inherit; }
 }
 .pcard .remove:hover{ background:rgba(255,59,92,.4); color:#fff; }
 
+/* ============ PERGUNTAS (EDITOR) ============ */
 .qrow{
   display:flex; gap:8px; align-items:flex-start;
   background:var(--panel2); border:1px solid var(--line);
@@ -239,12 +237,49 @@ input,textarea{ font-family:inherit; }
   display:grid; place-items:center; padding:0; flex:0 0 auto;
 }
 .qrow .remove:hover{ background:rgba(255,59,92,.3); color:#fff; }
+
+/* Seletor de tipo */
+.qtype-row{ display:flex; gap:4px; }
+.qtype{
+  padding:4px 10px; border-radius:7px; font-size:11px; font-weight:900;
+  border:1px solid var(--line); background:transparent; color:var(--muted);
+  transition:.15s; letter-spacing:.4px;
+}
+.qtype:hover{ color:#fff; background:rgba(255,255,255,.06); }
+.qtype.active{ background:rgba(255,201,60,.16); border-color:var(--gold); color:var(--gold); }
+
+/* Opções de múltipla escolha (editor) */
+.qoptions{ display:flex; flex-direction:column; gap:5px; }
+.qopt{
+  display:flex; gap:6px; align-items:center;
+}
+.qopt .letter{
+  width:24px; height:26px; border-radius:7px;
+  background:rgba(255,255,255,.05); border:1px solid var(--line);
+  display:grid; place-items:center;
+  font-size:11px; font-weight:900; color:var(--muted);
+  flex:0 0 auto; transition:.15s;
+}
+.qopt input { flex:1; }
+.qopt .mark{
+  width:28px; height:26px; border-radius:7px;
+  border:1px solid var(--line); background:transparent;
+  color:var(--muted); font-weight:900; font-size:13px;
+  display:grid; place-items:center; padding:0;
+  transition:.15s; flex:0 0 auto;
+}
+.qopt .mark:hover{ background:rgba(255,255,255,.08); color:#fff; }
+.qopt.correct .letter{ background:var(--green); border-color:var(--green); color:#fff; }
+.qopt.correct .mark{ background:var(--green); border-color:var(--green); color:#fff; }
+.qopt.correct input{ border-color:rgba(37,211,102,.55); background:rgba(37,211,102,.1); color:#c8f7d6; }
+
 .qcol-head{
   display:grid; grid-template-columns: 28px 1fr 28px; gap:8px;
   padding:0 10px 6px; font-size:10px; letter-spacing:1.4px;
   color:var(--muted); font-weight:900; text-transform:uppercase;
 }
 
+/* ============ GAME ============ */
 #game{ display:flex; flex-direction:column; height:100vh; height:100dvh; overflow:hidden; }
 .topbar{
   display:flex; align-items:center; gap:14px; flex-wrap:wrap;
@@ -348,6 +383,7 @@ input,textarea{ font-family:inherit; }
 .stage-card.result-mode .sc-top,
 .stage-card.result-mode .sc-question,
 .stage-card.result-mode .sc-input-wrap,
+.stage-card.result-mode .sc-options,
 .stage-card.result-mode .sc-warn,
 .stage-card.result-mode .sc-actions,
 .stage-card.result-mode .sc-answer,
@@ -445,15 +481,8 @@ input,textarea{ font-family:inherit; }
   box-shadow:0 0 0 3px rgba(255,201,60,.15);
 }
 .sc-input::placeholder{ color:rgba(255,255,255,.35); font-weight:600; }
-.sc-input.ok{
-  border-color:var(--green); background:rgba(37,211,102,.18);
-  box-shadow:0 0 0 3px rgba(37,211,102,.2);
-}
-.sc-input.no{
-  border-color:var(--red); background:rgba(255,59,92,.18);
-  box-shadow:0 0 0 3px rgba(255,59,92,.2);
-  animation:inputShake .4s;
-}
+.sc-input.ok{ border-color:var(--green); background:rgba(37,211,102,.18); box-shadow:0 0 0 3px rgba(37,211,102,.2); }
+.sc-input.no{ border-color:var(--red); background:rgba(255,59,92,.18); box-shadow:0 0 0 3px rgba(255,59,92,.2); animation:inputShake .4s; }
 @keyframes inputShake{
   0%,100%{ transform:translateX(0); }
   25%{ transform:translateX(-6px); }
@@ -472,6 +501,47 @@ input,textarea{ font-family:inherit; }
 }
 .sc-btn.confirm:hover{ filter:brightness(1.08); }
 .sc-btn.confirm:disabled{ opacity:.35; cursor:not-allowed; filter:none; }
+
+/* Opções de múltipla escolha (game) */
+.sc-options{
+  display:flex; flex-direction:column; gap:8px; margin-top:12px;
+  animation:fadeIn .3s ease;
+}
+.opt-btn{
+  display:flex; gap:10px; align-items:center;
+  padding:12px 16px; border-radius:12px;
+  background:rgba(255,255,255,.06);
+  border:1.5px solid rgba(255,255,255,.16);
+  color:#fff; font-weight:700; font-size:15px;
+  text-align:left; transition:.15s; cursor:pointer;
+  font-family:inherit; width:100%;
+}
+.opt-btn:hover:not(:disabled){
+  background:rgba(255,255,255,.13);
+  border-color:rgba(255,255,255,.3);
+  transform:translateY(-1px);
+}
+.opt-btn .letter{
+  width:28px; height:28px; border-radius:8px;
+  background:rgba(255,201,60,.14); color:var(--gold);
+  display:grid; place-items:center;
+  font-weight:900; font-size:14px; flex:0 0 auto;
+}
+.opt-btn .text{ flex:1; text-align:left; line-height:1.3; }
+.opt-btn.ok{
+  background:rgba(37,211,102,.28);
+  border-color:var(--green);
+  box-shadow:0 0 0 2px rgba(37,211,102,.25);
+}
+.opt-btn.ok .letter{ background:var(--green); color:#fff; }
+.opt-btn.no{
+  background:rgba(255,59,92,.28);
+  border-color:var(--red);
+  animation:inputShake .4s;
+}
+.opt-btn.no .letter{ background:var(--red); color:#fff; }
+.opt-btn:disabled{ cursor:not-allowed; opacity:.85; }
+.opt-btn.ok:disabled, .opt-btn.no:disabled{ opacity:1; }
 
 .sc-actions{
   display:flex; gap:8px; justify-content:center; margin-top:10px; flex-wrap:wrap;
@@ -545,8 +615,7 @@ input,textarea{ font-family:inherit; }
   transform:translateX(-50%);
   width:calc(var(--w,60px) * 1.42);
   height:calc(var(--w,60px) * 0.40);
-  z-index:1;
-  pointer-events:none;
+  z-index:1; pointer-events:none;
 }
 .hole-dark{
   position:absolute; inset:0; border-radius:50%;
@@ -568,12 +637,9 @@ input,textarea{ font-family:inherit; }
 .hole.open .dr{ transform:translate(118%,26%) rotate(28deg); opacity:0; }
 
 .hole.open::before{
-  content:'';
-  position:absolute; inset:-40%;
-  border-radius:50%;
+  content:''; position:absolute; inset:-40%; border-radius:50%;
   background:radial-gradient(ellipse, rgba(255,40,80,.55) 0%, rgba(255,40,80,0) 65%);
-  animation:holeFlash 1s ease-out;
-  pointer-events:none;
+  animation:holeFlash 1s ease-out; pointer-events:none;
 }
 @keyframes holeFlash{
   0%   { opacity:0; transform:scale(.4); }
@@ -588,9 +654,7 @@ input,textarea{ font-family:inherit; }
 }
 
 .player.fell .doll{ animation: dollDissolve .6s forwards; }
-@keyframes dollDissolve{
-  to { opacity: .12; filter: grayscale(1) blur(1px); }
-}
+@keyframes dollDissolve{ to { opacity: .12; filter: grayscale(1) blur(1px); } }
 
 .player.correct .doll{ filter:drop-shadow(0 0 18px rgba(37,211,102,.95)) drop-shadow(0 10px 12px rgba(0,0,0,.5)); }
 .player.wrong .doll{ animation:shake .5s; filter:drop-shadow(0 0 20px rgba(255,59,92,.95)); }
@@ -704,25 +768,20 @@ input,textarea{ font-family:inherit; }
     radial-gradient(ellipse 100% 80% at 50% 50%, rgba(0,0,0,.94) 0%, #000 100%);
 }
 .fall-overlay::before{
-  content:'';
-  position: absolute; inset: 0;
-  background:
-    repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,.015) 3px, rgba(255,255,255,.015) 4px);
+  content:''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,.015) 3px, rgba(255,255,255,.015) 4px);
   pointer-events: none; opacity: .5; mix-blend-mode: overlay;
 }
 .fall-overlay.show{ opacity: 1; pointer-events: auto; }
 .fall-overlay.hidden{ display: none; }
-
 .fall-stage{
   position: relative; text-align: center; padding: 20px;
-  animation: stagePop .6s cubic-bezier(.34,1.56,.64,1);
-  transform-origin: center;
+  animation: stagePop .6s cubic-bezier(.34,1.56,.64,1); transform-origin: center;
 }
 @keyframes stagePop{
   from { transform: scale(.82); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
-
 .fall-badge{
   display: inline-block; padding: 6px 18px; border-radius: 999px;
   background: linear-gradient(135deg, #ff3b5c, #a1001f);
@@ -736,7 +795,6 @@ input,textarea{ font-family:inherit; }
   from { transform: scale(1); box-shadow: 0 6px 24px rgba(255,59,92,.6); }
   to   { transform: scale(1.04); box-shadow: 0 8px 32px rgba(255,59,92,.95); }
 }
-
 .fall-name{
   font-size: clamp(24px, 5.5vw, 52px); font-weight: 900; color: #fff;
   letter-spacing: 1px; line-height: 1.1; margin-bottom: 6px;
@@ -747,21 +805,17 @@ input,textarea{ font-family:inherit; }
   from { text-shadow: 0 0 20px rgba(255,59,92,.7), 0 0 60px rgba(255,59,92,.4), 0 4px 30px #000; }
   to   { text-shadow: 0 0 28px rgba(255,59,92,1), 0 0 90px rgba(255,59,92,.7), 0 4px 30px #000; }
 }
-
 .fall-sub{
   font-size: clamp(10px, 1.4vw, 14px); color: #ff8da1;
   letter-spacing: 6px; font-weight: 900; text-transform: uppercase;
   margin-bottom: clamp(24px, 5vh, 60px); opacity: .9;
 }
-
 .fall-dolls{
   display: flex; gap: clamp(10px, 3vw, 40px);
   justify-content: center; align-items: flex-end; flex-wrap: wrap;
   max-width: 92vw; margin: 0 auto;
 }
-
 .fall-pair{ position: relative; width: clamp(90px, 20vw, 190px); flex: 0 0 auto; }
-
 .fall-doll{
   position: relative; z-index: 2; width: 100%;
   transform-origin: 50% 96%;
@@ -774,7 +828,6 @@ input,textarea{ font-family:inherit; }
   100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
 }
 .fall-doll svg{ width: 100%; height: auto; display: block; }
-
 .fall-doll.shake{ animation: dollShakeBig .4s ease-in-out infinite; }
 @keyframes dollShakeBig{
   0%,100% { transform: translateX(0) rotate(0deg); }
@@ -783,7 +836,6 @@ input,textarea{ font-family:inherit; }
   60%     { transform: translateX(-4px) rotate(-3deg); }
   80%     { transform: translateX(4px) rotate(3deg); }
 }
-
 .fall-doll.falling{ animation: dollFallBig 1.5s cubic-bezier(.42,0,.66,.28) forwards; }
 @keyframes dollFallBig{
   0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
@@ -794,7 +846,6 @@ input,textarea{ font-family:inherit; }
   75%  { transform: translateY(95%) rotate(65deg) scale(.5); opacity: .8; }
   100% { transform: translateY(175%) rotate(100deg) scale(.1); opacity: 0; }
 }
-
 .fall-hole{
   position: absolute; top: 84%; left: 50%;
   transform: translateX(-50%);
@@ -815,12 +866,10 @@ input,textarea{ font-family:inherit; }
 .fall-door.dr{ right: 0; border-radius: 0 100% 100% 0 / 0 50% 50% 0; }
 .fall-hole.open .dl{ transform: translate(-125%,30%) rotate(-32deg); opacity: 0; }
 .fall-hole.open .dr{ transform: translate(125%,30%) rotate(32deg); opacity: 0; }
-
 .fall-hole.open::before{
   content: ''; position: absolute; inset: -70%; border-radius: 50%;
   background: radial-gradient(ellipse, rgba(255,40,80,.75) 0%, rgba(255,40,80,0) 60%);
-  animation: holeFlashBig 1.2s ease-out;
-  pointer-events: none;
+  animation: holeFlashBig 1.2s ease-out; pointer-events: none;
 }
 @keyframes holeFlashBig{
   0%   { opacity: 0; transform: scale(.3); }
@@ -833,7 +882,6 @@ input,textarea{ font-family:inherit; }
   30%  { box-shadow: inset 0 30px 65px #000, inset 0 -12px 24px #000, 0 0 100px rgba(255,40,80,.7); }
   100% { box-shadow: inset 0 22px 45px #000, inset 0 -8px 18px #000, 0 0 60px #000; }
 }
-
 .fall-impact{
   position: absolute; left: 50%; top: 90%;
   transform: translate(-50%,-50%) scale(.3);
@@ -846,7 +894,6 @@ input,textarea{ font-family:inherit; }
   0%   { opacity: 1; transform: translate(-50%,-50%) scale(.3); border-width: 6px; }
   100% { opacity: 0; transform: translate(-50%,-50%) scale(2); border-width: 1px; }
 }
-
 .fall-skip{
   position: fixed; bottom: 26px; right: 26px;
   padding: 10px 18px; border-radius: 11px;
@@ -867,7 +914,6 @@ input,textarea{ font-family:inherit; }
 }
 .finale-overlay.show{ opacity: 1; }
 .finale-overlay.hidden{ display: none; }
-
 .finale-content{
   text-align: center; padding: 24px; max-width: 92vw;
   animation: stagePop .5s cubic-bezier(.34,1.56,.64,1);
@@ -995,7 +1041,6 @@ input,textarea{ font-family:inherit; }
   margin-bottom: 28px; font-weight: 800; letter-spacing: 1px;
 }
 .winner-btn{ padding: 14px 32px !important; font-size: 15px !important; }
-
 .confetti{ position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
 .confetti-piece{
   position: absolute; top: -20px;
@@ -1037,6 +1082,10 @@ input,textarea{ font-family:inherit; }
   .finale-score-row .pts{ min-width: 36px; padding: 3px 8px; font-size: 14px; }
   .winner-trophy{ font-size: 64px; }
   .winner-card{ padding: 32px 22px; }
+  .opt-btn{ padding: 10px 12px; font-size: 14px; }
+  .opt-btn .letter{ width: 24px; height: 24px; font-size: 12px; }
+  .qopt .letter{ width: 20px; height: 22px; font-size: 10px; }
+  .qopt .mark{ width: 24px; height: 22px; font-size: 11px; }
 }
 </style>
 </head>
@@ -1076,9 +1125,7 @@ input,textarea{ font-family:inherit; }
         <span>🏁 Encerrar automaticamente ao completar as rodadas</span>
       </label>
     </div>
-    <p class="hint">
-      Cada participante/equipe responde <b>N perguntas</b>. No final, acontece o <b>gran finale</b>.
-    </p>
+    <p class="hint">Cada participante/equipe responde <b>N perguntas</b>. No final, acontece o <b>gran finale</b>.</p>
   </section>
 
   <section class="card">
@@ -1100,22 +1147,12 @@ input,textarea{ font-family:inherit; }
     <p class="hint" id="qtyHint">Depois de gerar, você poderá editar nomes, fotos e gênero.</p>
   </section>
 
-  <!-- NOVO: verificação de perguntas -->
   <section class="card check-card" id="checkCard">
     <h2>3.1 · Verificação de perguntas</h2>
     <div class="check-grid">
-      <div class="check-cell req">
-        <div class="lbl">Necessárias</div>
-        <div class="val" id="checkRequired">—</div>
-      </div>
-      <div class="check-cell have">
-        <div class="lbl">No banco</div>
-        <div class="val" id="checkHave">0</div>
-      </div>
-      <div class="check-cell">
-        <div class="lbl">Faltam</div>
-        <div class="val" id="checkMissing">—</div>
-      </div>
+      <div class="check-cell req"><div class="lbl">Necessárias</div><div class="val" id="checkRequired">—</div></div>
+      <div class="check-cell have"><div class="lbl">No banco</div><div class="val" id="checkHave">0</div></div>
+      <div class="check-cell"><div class="lbl">Faltam</div><div class="val" id="checkMissing">—</div></div>
     </div>
     <div class="check-status warn" id="checkStatus">
       <span class="ico">⏳</span>
@@ -1146,18 +1183,21 @@ input,textarea{ font-family:inherit; }
       <span>❓ Sortear uma pergunta do banco a cada turno</span>
     </label>
     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
-      <button class="btn primary" onclick="addQuestion()">+ Adicionar pergunta</button>
+      <button class="btn primary" onclick="addQuestion('open')">+ Aberta</button>
+      <button class="btn primary" onclick="addQuestion('multiple')" style="background:linear-gradient(135deg,#3ba7ff,#a855f7);">+ Múltipla escolha</button>
       <button class="btn" onclick="document.getElementById('importQ').click()">📥 Importar JSON</button>
       <button class="btn" onclick="exportQuestions()">📤 Exportar JSON</button>
       <button class="btn ghost" onclick="loadExampleQuestions()">Exemplo</button>
       <button class="btn ghost danger" onclick="clearQuestions()">Limpar</button>
       <input type="file" id="importQ" accept=".json,application/json" style="display:none">
     </div>
-    <div class="qcol-head"><span>#</span><span>Pergunta / Resposta</span><span></span></div>
-    <div id="questionList" style="display:flex; flex-direction:column; gap:8px; max-height:360px; overflow-y:auto; padding-right:4px;"></div>
+    <div class="qcol-head"><span>#</span><span>Pergunta / Resposta / Opções</span><span></span></div>
+    <div id="questionList" style="display:flex; flex-direction:column; gap:8px; max-height:460px; overflow-y:auto; padding-right:4px;"></div>
     <div class="hint" id="qCount">0 perguntas no banco</div>
     <p class="hint" style="margin-top:8px;">
-      💡 <b>Dica:</b> aceite várias respostas certas separando com <code style="color:#ffd66b;">|</code>. Ex: <code style="color:#ffd66b;">Brasília|DF</code>
+      💡 <b>Dica:</b> na pergunta <b>Aberta</b>, aceite várias respostas certas separando com <code style="color:#ffd66b;">|</code>. Ex: <code style="color:#ffd66b;">Brasília|DF</code><br>
+      Na <b>Múltipla escolha</b>, preencha ao menos 2 opções e clique no botão <b>○</b> para marcar qual é a correta (fica verde).<br>
+      O sistema ignora acentos e maiúsculas/minúsculas na comparação das perguntas abertas.
     </p>
   </section>
 
@@ -1211,6 +1251,8 @@ input,textarea{ font-family:inherit; }
                  spellcheck="false" inputmode="text" enterkeyhint="done">
           <button class="sc-btn confirm" id="scConfirm">✓ Confirmar</button>
         </div>
+
+        <div class="sc-options hidden" id="csOptions"></div>
 
         <div class="sc-warn hidden" id="csWarn">
           ⚠️ Nenhuma pergunta cadastrada. Use os botões abaixo para confirmar manualmente.
@@ -1290,9 +1332,21 @@ let _idc = 0;
 const uid = (p='id') => p + (++_idc) + '_' + Math.random().toString(36).slice(2,6);
 const TEAM_COLORS = ['#ff3b5c','#ff8a3c','#ffc93c','#25d366','#3ba7ff','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6'];
 const wait = ms => new Promise(r => setTimeout(r, ms));
+const LETTERS = ['A','B','C','D'];
 
 function mkMember(name){
   return { id: uid('m'), name: name || 'Sem nome', gender: 'male', photo: null, alive: true };
+}
+function mkQuestion(type = 'open'){
+  return {
+    id: uid('q'),
+    type,           // 'open' | 'multiple'
+    q: '',
+    a: '',          // resposta (open)
+    options: ['', '', '', ''],   // 4 slots (multiple)
+    correct: 0,     // índice da correta (multiple)
+    used: false
+  };
 }
 function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1316,8 +1370,38 @@ function checkTypedAnswer(typed, correctRaw){
   if (!alts.length) return false;
   return alts.includes(t);
 }
+
+/* Validação: uma pergunta vale se tem texto e (resposta OU 2+ opções com a correta preenchida) */
+function isQuestionValid(q){
+  if (!q.q.trim()) return false;
+  if (q.type === 'multiple'){
+    const filled = q.options.filter(o => o.trim()).length;
+    if (filled < 2) return false;
+    if (!q.options[q.correct] || !q.options[q.correct].trim()) return false;
+    return true;
+  }
+  return q.a.trim().length > 0;
+}
 function validQuestionsCount(){
-  return state.questions.filter(q => q.q.trim() && q.a.trim()).length;
+  return state.questions.filter(isQuestionValid).length;
+}
+
+/* Retorna as opções não vazias para exibir (com letras renumeradas A, B, C, D...) */
+function getDisplayOptions(qq){
+  const result = [];
+  let letterIdx = 0;
+  qq.options.forEach((opt, i) => {
+    if (opt.trim()){
+      result.push({
+        letter: LETTERS[letterIdx],
+        text: opt,
+        isCorrect: i === qq.correct,
+        originalIdx: i
+      });
+      letterIdx++;
+    }
+  });
+  return result;
 }
 
 /* ============================================================
@@ -1333,46 +1417,26 @@ function readCurrentUnitsCount(){
 function readCurrentRounds(){
   return Math.max(1, Math.min(50, parseInt(document.getElementById('roundsPerUnit').value) || 5));
 }
-
-/* Retorna { required, mode, description } — required é o número exato ou recomendado */
 function computeRequiredQuestions(){
   const units = readCurrentUnitsCount();
   const rounds = readCurrentRounds();
   const strict = state.roundMode === 'score' && document.getElementById('roundLimitEnabled').checked;
 
   if (!state.useQuestions){
-    return { required: 0, strict: false, description: 'Você desativou o sorteio de perguntas. O jogo será conduzido pelos botões <b>Forçar ✓</b> e <b>Forçar ✗</b>.' };
+    return { required: 0, strict: false, description: 'Você desativou o sorteio. O jogo será conduzido pelos botões <b>Forçar ✓</b> e <b>Forçar ✗</b>.' };
   }
-
   if (state.roundMode === 'score' && strict){
     const required = units * rounds;
-    return {
-      required,
-      strict: true,
-      description: `Modo <b>Pontuação com limite</b>. Você terá exatamente <b>${units} × ${rounds} = ${required}</b> turnos. Para não repetir nenhuma pergunta, o banco precisa de <b>${required}</b> perguntas válidas.`
-    };
+    return { required, strict: true, description: `Modo <b>Pontuação com limite</b>. Você terá <b>${units} × ${rounds} = ${required}</b> turnos. Para não repetir, o banco precisa de <b>${required}</b> perguntas válidas.` };
   }
-
-  if (state.roundMode === 'score' && !strict){
+  if (state.roundMode === 'score'){
     const required = units * 3;
-    return {
-      required,
-      strict: false,
-      description: `Modo <b>Pontuação sem limite</b>. O jogo continua até você encerrar. Recomendamos pelo menos <b>${units} × 3 = ${required}</b> perguntas para uma boa variedade.`
-    };
+    return { required, strict: false, description: `Modo <b>Pontuação sem limite</b>. Recomendamos pelo menos <b>${units} × 3 = ${required}</b> perguntas.` };
   }
-
-  // Eliminação
   const minimum = units;
   const recommended = units * 3;
-  return {
-    required: recommended,
-    minimum,
-    strict: false,
-    description: `Modo <b>Errou-caiu</b>. O mínimo é <b>${minimum}</b> pergunta (1 por unidade). Recomendamos <b>${recommended}</b> para dar variedade — se o banco acabar, o jogo pausa e você decide.`
-  };
+  return { required: recommended, strict: false, minimum, description: `Modo <b>Errou-caiu</b>. Mínimo: <b>${minimum}</b> pergunta. Recomendado: <b>${recommended}</b>.` };
 }
-
 function updateQuestionRequirement(){
   const { required, strict, minimum, description } = computeRequiredQuestions();
   const have = validQuestionsCount();
@@ -1393,13 +1457,13 @@ function updateQuestionRequirement(){
 
   if (required === 0){
     cls = 'ok'; ico = '✅';
-    txt = 'Sem perguntas necessárias. O jogo será conduzido manualmente pelo apresentador.';
+    txt = 'Sem perguntas necessárias. O jogo será conduzido manualmente.';
   } else if (have >= required){
     cls = 'ok'; ico = '✅';
-    txt = `Perfeito! Você tem <b>${have}</b> perguntas — suficiente para os <b>${required}</b> turnos sem repetições.`;
+    txt = `Perfeito! Você tem <b>${have}</b> perguntas — suficiente para <b>${required}</b> turnos sem repetições.`;
   } else if (minimum !== undefined && have >= minimum){
     cls = 'warn'; ico = '⚠️';
-    txt = `Você tem o <b>mínimo</b> (${have} de ${minimum}), mas o recomendado é <b>${required}</b>. Algumas perguntas podem faltar e o jogo vai pausar.`;
+    txt = `Você tem o <b>mínimo</b> (${have} de ${minimum}), mas o recomendado é <b>${required}</b>.`;
   } else if (strict && have < required){
     cls = 'err'; ico = '🚫';
     txt = `Faltam <b>${missing}</b> perguntas! No modo <b>Pontuação com limite</b>, o jogo não pode iniciar com o banco incompleto.`;
@@ -1417,18 +1481,19 @@ function updateQuestionRequirement(){
   detail.innerHTML = description;
 }
 
-/* Bind: qualquer mudança recalcula */
 ['numPlayers','numTeams','roundsPerUnit','roundLimitEnabled','useQuestions'].forEach(id => {
   const el = document.getElementById(id);
-  if (el) el.addEventListener('input', updateQuestionRequirement);
-  if (el) el.addEventListener('change', updateQuestionRequirement);
+  if (el){
+    el.addEventListener('input', updateQuestionRequirement);
+    el.addEventListener('change', updateQuestionRequirement);
+  }
 });
 document.querySelectorAll('#modeSeg button, #roundSeg button').forEach(b => {
   b.addEventListener('click', () => setTimeout(updateQuestionRequirement, 10));
 });
 
 /* ============================================================
-   AVATAR
+   AVATAR SVG
 ============================================================ */
 function svgAvatar(gender, photoUrl, color){
   const isF = gender === 'female';
@@ -1593,7 +1658,7 @@ bindToggle('useQuestions');
 bindToggle('roundLimitEnabled');
 
 /* ============================================================
-   PERGUNTAS
+   BANCO DE PERGUNTAS
 ============================================================ */
 function renderQuestionList(){
   const host = document.getElementById('questionList');
@@ -1601,27 +1666,67 @@ function renderQuestionList(){
   state.questions.forEach((qq, i) => {
     const row = document.createElement('div');
     row.className = 'qrow';
-    row.innerHTML = `
-      <span class="qnum">${i+1}</span>
-      <div class="qfields">
-        <input class="qQ" type="text" value="${escapeHtml(qq.q)}" placeholder="Pergunta…" maxlength="300">
-        <input class="qA" type="text" value="${escapeHtml(qq.a)}" placeholder="Resposta (use | para alternativas)…" maxlength="300">
+    row.dataset.qid = qq.id;
+
+    // Cabeçalho da pergunta
+    const top = document.createElement('div');
+    top.className = 'qfields';
+    top.innerHTML = `
+      <div class="qtype-row">
+        <button class="qtype ${qq.type === 'open' ? 'active' : ''}" data-action="set-type" data-type="open" data-qid="${qq.id}">✍️ Aberta</button>
+        <button class="qtype ${qq.type === 'multiple' ? 'active' : ''}" data-action="set-type" data-type="multiple" data-qid="${qq.id}">🔘 Múltipla escolha</button>
       </div>
-      <button class="remove" title="Remover">×</button>
+      <input class="qQ" type="text" value="${escapeHtml(qq.q)}" placeholder="Pergunta…" maxlength="300" data-action="edit-q" data-qid="${qq.id}">
     `;
-    row.querySelector('.qQ').addEventListener('input', e => { qq.q = e.target.value; updateQuestionRequirement(); });
-    row.querySelector('.qA').addEventListener('input', e => { qq.a = e.target.value; updateQuestionRequirement(); });
-    row.querySelector('.remove').addEventListener('click', () => {
-      state.questions.splice(i, 1); renderQuestionList(); updateQuestionRequirement();
-    });
+
+    // Área de resposta
+    if (qq.type === 'multiple'){
+      const opts = document.createElement('div');
+      opts.className = 'qoptions';
+      qq.options.forEach((opt, oi) => {
+        const optRow = document.createElement('div');
+        optRow.className = 'qopt' + (qq.correct === oi ? ' correct' : '');
+        optRow.innerHTML = `
+          <span class="letter">${LETTERS[oi]}</span>
+          <input type="text" value="${escapeHtml(opt)}" placeholder="Opção ${LETTERS[oi]}${oi >= 2 ? ' (opcional)' : ''}…" maxlength="200" data-action="edit-opt" data-qid="${qq.id}" data-oidx="${oi}">
+          <button class="mark" title="Marcar como correta" data-action="mark-correct" data-qid="${qq.id}" data-oidx="${oi}">${qq.correct === oi ? '✓' : '○'}</button>
+        `;
+        opts.appendChild(optRow);
+      });
+      top.appendChild(opts);
+    } else {
+      const ansInput = document.createElement('input');
+      ansInput.className = 'qA';
+      ansInput.type = 'text';
+      ansInput.value = qq.a;
+      ansInput.placeholder = 'Resposta (use | para alternativas)…';
+      ansInput.maxLength = 300;
+      ansInput.dataset.action = 'edit-a';
+      ansInput.dataset.qid = qq.id;
+      top.appendChild(ansInput);
+    }
+
+    row.appendChild(Object.assign(document.createElement('span'), { className: 'qnum', textContent: i + 1 }));
+    row.appendChild(top);
+
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'remove';
+    rmBtn.title = 'Remover';
+    rmBtn.textContent = '×';
+    rmBtn.dataset.action = 'remove-q';
+    rmBtn.dataset.qid = qq.id;
+    row.appendChild(rmBtn);
+
     host.appendChild(row);
   });
   document.getElementById('qCount').textContent =
-    state.questions.length + ' pergunta' + (state.questions.length === 1 ? '' : 's') + ' no banco';
+    state.questions.length + ' pergunta' + (state.questions.length === 1 ? '' : 's') +
+    ' (' + validQuestionsCount() + ' válida' + (validQuestionsCount() === 1 ? '' : 's') + ')';
   updateQuestionRequirement();
 }
-function addQuestion(){
-  state.questions.push({ id: uid('q'), q: '', a: '', used: false });
+
+function addQuestion(type){
+  state.questions.push(mkQuestion(type || 'open'));
   renderQuestionList();
   const host = document.getElementById('questionList');
   const rows = host.querySelectorAll('.qrow .qQ');
@@ -1634,7 +1739,17 @@ function clearQuestions(){
   state.questions = []; renderQuestionList();
 }
 function exportQuestions(){
-  const data = state.questions.map(q => ({ q: q.q, a: q.a }));
+  const data = state.questions.map(q => {
+    if (q.type === 'multiple'){
+      return {
+        type: 'multiple',
+        q: q.q,
+        options: q.options.slice(),
+        correct: q.correct
+      };
+    }
+    return { type: 'open', q: q.q, a: q.a };
+  });
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1642,6 +1757,7 @@ function exportQuestions(){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
 document.getElementById('importQ').addEventListener('change', e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
@@ -1653,16 +1769,48 @@ document.getElementById('importQ').addEventListener('change', e => {
       else if (parsed && Array.isArray(parsed.questions)) arr = parsed.questions;
       else if (parsed && Array.isArray(parsed.perguntas)) arr = parsed.perguntas;
       else throw new Error('Formato não reconhecido');
+
       const imported = [];
       arr.forEach(item => {
         if (!item) return;
-        const q = item.q ?? item.pergunta ?? item.question ?? '';
-        const a = item.a ?? item.resposta ?? item.answer ?? '';
-        if (String(q).trim() && String(a).trim()){
-          imported.push({ id: uid('q'), q: String(q).trim(), a: String(a).trim(), used: false });
+        const qText = String(item.q ?? item.pergunta ?? item.question ?? '').trim();
+        if (!qText) return;
+
+        const isMult = item.type === 'multiple' || Array.isArray(item.options);
+        if (isMult){
+          let opts = Array.isArray(item.options) ? item.options.map(o => String(o)) : [];
+          while (opts.length < 4) opts.push('');
+          opts = opts.slice(0, 4);
+          let correct = 0;
+          if (typeof item.correct === 'number'){
+            correct = Math.max(0, Math.min(3, item.correct));
+          } else if (item.correct && typeof item.correct === 'string'){
+            // aceitar "A", "B", "C", "D"
+            const idx = LETTERS.indexOf(item.correct.toUpperCase());
+            if (idx >= 0) correct = idx;
+          }
+          // Se a correta estiver vazia mas houver alguma preenchida, tenta achar
+          if (!opts[correct].trim()){
+            const firstFilled = opts.findIndex(o => o.trim());
+            if (firstFilled >= 0) correct = firstFilled;
+          }
+          if (opts.filter(o => o.trim()).length < 2) return; // inválida
+          imported.push({
+            id: uid('q'), type: 'multiple',
+            q: qText, a: '', options: opts, correct, used: false
+          });
+        } else {
+          const a = String(item.a ?? item.resposta ?? item.answer ?? '').trim();
+          if (!a) return;
+          imported.push({
+            id: uid('q'), type: 'open',
+            q: qText, a, options: ['', '', '', ''], correct: 0, used: false
+          });
         }
       });
+
       if (!imported.length) throw new Error('Nenhuma pergunta válida encontrada');
+
       if (state.questions.length){
         const replace = confirm(
           `Importadas ${imported.length} pergunta(s).\n\nOK = substituir\nCancelar = adicionar`
@@ -1675,36 +1823,90 @@ document.getElementById('importQ').addEventListener('change', e => {
   };
   r.readAsText(f);
 });
+
 function loadExampleQuestions(){
   const exemplo = [
-    { q: 'Qual é a capital do Brasil?', a: 'Brasília|DF' },
-    { q: 'Quantos lados tem um hexágono?', a: '6|seis' },
-    { q: 'Quem pintou a Mona Lisa?', a: 'Leonardo da Vinci' },
-    { q: 'Qual é o maior planeta do Sistema Solar?', a: 'Júpiter' },
-    { q: 'Em que ano o Brasil foi descoberto?', a: '1500' },
-    { q: 'Qual é o metal líquido à temperatura ambiente?', a: 'Mercúrio' },
-    { q: 'Quantos jogadores tem um time de futebol em campo?', a: '11|onze' },
-    { q: 'Qual é o menor país do mundo?', a: 'Vaticano' },
-    { q: 'Quem escreveu "Dom Casmurro"?', a: 'Machado de Assis' },
-    { q: 'Qual é o rio mais extenso do mundo?', a: 'Amazonas' },
-    { q: 'Quantas cores tem o arco-íris?', a: '7|sete' },
-    { q: 'Qual é o oceano mais profundo?', a: 'Pacífico' },
-    { q: 'Quem descobriu a penicilina?', a: 'Alexander Fleming' },
-    { q: 'Qual é a fórmula química da água?', a: 'H2O' },
-    { q: 'Qual é o idioma mais falado do mundo?', a: 'Mandarim' },
-    { q: 'Quantos continentes existem?', a: '7|sete' },
-    { q: 'Qual é a capital da França?', a: 'Paris' },
-    { q: 'Quem descobriu o Brasil?', a: 'Pedro Álvares Cabral|Cabral' },
-    { q: 'Qual é o maior animal do mundo?', a: 'Baleia-azul|Baleia azul' },
-    { q: 'Em que ano o homem pisou na Lua?', a: '1969' }
-  ].map(x => ({ id: uid('q'), q: x.q, a: x.a, used: false }));
+    { type: 'open', q: 'Qual é a capital do Brasil?', a: 'Brasília|DF' },
+    { type: 'multiple', q: 'Qual é o maior planeta do Sistema Solar?',
+      options: ['Terra', 'Júpiter', 'Saturno', 'Marte'], correct: 1 },
+    { type: 'open', q: 'Quantos lados tem um hexágono?', a: '6|seis' },
+    { type: 'multiple', q: 'Quem pintou a Mona Lisa?',
+      options: ['Van Gogh', 'Picasso', 'Leonardo da Vinci', 'Michelangelo'], correct: 2 },
+    { type: 'open', q: 'Em que ano o Brasil foi descoberto?', a: '1500' },
+    { type: 'multiple', q: 'Qual é a fórmula química da água?',
+      options: ['CO₂', 'H₂O', 'O₂', 'NaCl'], correct: 1 },
+    { type: 'multiple', q: 'Qual é o maior animal do mundo?',
+      options: ['Elefante', 'Baleia-azul', 'Tubarão-branco', 'Girafa'], correct: 1 },
+    { type: 'open', q: 'Quem escreveu "Dom Casmurro"?', a: 'Machado de Assis' },
+    { type: 'multiple', q: 'Qual é o país mais populoso do mundo?',
+      options: ['EUA', 'China', 'Índia', 'Rússia'], correct: 2 },
+    { type: 'open', q: 'Qual é o oceano mais profundo?', a: 'Pacífico' },
+    { type: 'multiple', q: 'Em que continente fica o Egito?',
+      options: ['Ásia', 'Europa', 'África', 'Oceania'], correct: 2 },
+    { type: 'open', q: 'Quantos jogadores tem um time de futebol em campo?', a: '11|onze' },
+    { type: 'multiple', q: 'Qual é a capital da França?',
+      options: ['Londres', 'Berlim', 'Paris', 'Roma'], correct: 2 },
+    { type: 'open', q: 'Quem descobriu a penicilina?', a: 'Alexander Fleming' },
+    { type: 'multiple', q: 'Qual é o idioma mais falado do mundo?',
+      options: ['Inglês', 'Espanhol', 'Mandarim', 'Português'], correct: 2 }
+  ].map(item => {
+    if (item.type === 'multiple'){
+      return {
+        id: uid('q'), type: 'multiple',
+        q: item.q, a: '',
+        options: item.options.concat(['','','','']).slice(0,4),
+        correct: item.correct, used: false
+      };
+    }
+    return { id: uid('q'), type: 'open', q: item.q, a: item.a,
+             options: ['','','',''], correct: 0, used: false };
+  });
   if (state.questions.length && !confirm('Substituir as perguntas atuais pelo exemplo?')) return;
   state.questions = exemplo; renderQuestionList();
 }
+
+document.getElementById('questionList').addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+  const qid = el.dataset.qid;
+  const qq = state.questions.find(q => q.id === qid);
+  if (!qq) return;
+
+  if (action === 'set-type'){
+    qq.type = el.dataset.type;
+    renderQuestionList();
+  } else if (action === 'mark-correct'){
+    qq.correct = parseInt(el.dataset.oidx);
+    renderQuestionList();
+  } else if (action === 'remove-q'){
+    state.questions = state.questions.filter(q => q.id !== qid);
+    renderQuestionList();
+  }
+});
+document.getElementById('questionList').addEventListener('input', e => {
+  const el = e.target;
+  if (!el.dataset.action) return;
+  const qq = state.questions.find(q => q.id === el.dataset.qid);
+  if (!qq) return;
+  if (el.dataset.action === 'edit-q'){
+    qq.q = el.value;
+  } else if (el.dataset.action === 'edit-a'){
+    qq.a = el.value;
+  } else if (el.dataset.action === 'edit-opt'){
+    qq.options[parseInt(el.dataset.oidx)] = el.value;
+  }
+  // Atualiza contagem sem perder foco
+  document.getElementById('qCount').textContent =
+    state.questions.length + ' pergunta' + (state.questions.length === 1 ? '' : 's') +
+    ' (' + validQuestionsCount() + ' válida' + (validQuestionsCount() === 1 ? '' : 's') + ')';
+  updateQuestionRequirement();
+});
+
 renderQuestionList();
 
 /* ============================================================
-   EDITOR
+   EDITOR DE PARTICIPANTES
 ============================================================ */
 function findUnit(id){ return state.units.find(u => u.id === id); }
 function findMember(unitId, memberId){
@@ -1844,47 +2046,36 @@ document.getElementById('editor').addEventListener('input', e => {
 });
 
 /* ============================================================
-   INICIAR JOGO — com validação de perguntas
+   INICIAR JOGO
 ============================================================ */
 function iniciarJogo(){
-  // Snapshot de config
   state.timerEnabled = document.getElementById('timerEnabled').checked;
   state.timerDuration = Math.max(0, parseInt(document.getElementById('timerSeconds').value) || 0);
   state.useQuestions = document.getElementById('useQuestions').checked;
   state.roundLimitEnabled = document.getElementById('roundLimitEnabled').checked;
   state.roundsPerUnit = readCurrentRounds();
 
-  // Validação
   const { required, strict, minimum } = computeRequiredQuestions();
   const have = validQuestionsCount();
 
   if (state.useQuestions){
     if (strict && have < required){
       alert(
-        `❌ Banco de perguntas insuficiente!\n\n` +
+        `❌ Banco insuficiente!\n\n` +
         `Modo: Pontuação com limite\n` +
         `Você precisa de ${required} perguntas (${readCurrentUnitsCount()} × ${state.roundsPerUnit}).\n` +
         `Você tem ${have}.\n\n` +
-        `Adicione mais ${required - have} pergunta(s) ou desligue o limite de rodadas para continuar.`
+        `Adicione mais ${required - have} pergunta(s).`
       );
       return;
     }
     if (!strict && minimum !== undefined && have < minimum){
-      if (!confirm(
-        `⚠️ Atenção!\n\n` +
-        `Você tem apenas ${have} pergunta(s), mas cada uma das ${readCurrentUnitsCount()} unidades precisa de pelo menos 1.\n\n` +
-        `Deseja continuar mesmo assim?`
-      )) return;
+      if (!confirm(`⚠️ Você tem apenas ${have} pergunta(s), mas cada unidade precisa de pelo menos 1.\n\nContinuar?`)) return;
     } else if (!strict && have < required){
-      if (!confirm(
-        `⚠️ Recomendação\n\n` +
-        `Recomendamos pelo menos ${required} perguntas. Você tem ${have}.\n\n` +
-        `Deseja continuar?`
-      )) return;
+      if (!confirm(`⚠️ Recomendamos ${required} perguntas. Você tem ${have}.\n\nContinuar?`)) return;
     }
   }
 
-  // Reset
   state.units.forEach(u => {
     u.alive = true; u.points = 0;
     u.members.forEach(m => m.alive = true);
@@ -2032,7 +2223,6 @@ function updateTopInfo(){
     turnEl.classList.remove('progress');
   }
 
-  // Pill de banco
   const bankEl = document.getElementById('pillBank');
   const usedCount = state.questions.filter(q => q.used).length;
   const totalValid = validQuestionsCount();
@@ -2053,11 +2243,9 @@ function highlightCurrent(){
   const u = currentUnit(); if (!u || !u.alive) return;
   document.querySelectorAll(`.player[data-unit-id="${u.id}"]`).forEach(el => el.classList.add('picked'));
 }
-
-/* IMPORTANTE: NÃO reseta perguntas usadas. Quando acaba, retorna null. */
 function drawQuestion(){
   if (!state.useQuestions) return null;
-  const available = state.questions.filter(q => !q.used && q.q.trim() && q.a.trim());
+  const available = state.questions.filter(q => !q.used && isQuestionValid(q));
   if (!available.length) return null;
   const q = available[Math.floor(Math.random() * available.length)];
   q.used = true;
@@ -2066,14 +2254,14 @@ function drawQuestion(){
 function questionsExhausted(){
   if (!state.useQuestions) return false;
   const totalValid = validQuestionsCount();
-  if (totalValid === 0) return false; // não cadastrou nada
-  return state.questions.every(q => q.used || !q.q.trim() || !q.a.trim());
+  if (totalValid === 0) return false;
+  return state.questions.filter(isQuestionValid).every(q => q.used);
 }
-
 function renderQuestionUI(){
   const wrap = document.getElementById('csQuestion');
   const ans = document.getElementById('csAnswer');
   const inputWrap = document.getElementById('csInputWrap');
+  const optionsWrap = document.getElementById('csOptions');
   const warn = document.getElementById('csWarn');
   const exhausted = document.getElementById('csExhausted');
   const secondary = document.getElementById('csSecondary');
@@ -2084,10 +2272,11 @@ function renderQuestionUI(){
   const stageCard = document.getElementById('stageCard');
 
   stageCard.classList.remove('result-mode');
-
   wrap.classList.add('hidden');
   ans.classList.add('hidden');
   inputWrap.classList.add('hidden');
+  optionsWrap.classList.add('hidden');
+  optionsWrap.innerHTML = '';
   warn.classList.add('hidden');
   exhausted.classList.add('hidden');
   secondary.classList.remove('hidden');
@@ -2095,30 +2284,72 @@ function renderQuestionUI(){
   if (state.currentQuestion){
     wrap.classList.remove('hidden');
     qText.textContent = state.currentQuestion.q;
-    if (state.answerRevealed){
-      ans.classList.remove('hidden');
-      aText.textContent = state.currentQuestion.a;
-    }
-    if (state.turnActive && !state.answerRevealed){
-      inputWrap.classList.remove('hidden');
-      input.classList.remove('ok','no');
-      input.disabled = false; input.value = '';
-      confirmBtn.disabled = false;
-    } else if (state.turnActive && state.answerRevealed){
-      inputWrap.classList.remove('hidden');
-      input.disabled = true; confirmBtn.disabled = true;
+
+    if (state.currentQuestion.type === 'multiple'){
+      // Múltipla escolha
+      renderMultipleChoice();
+      // Esconde o texto de resposta (não se aplica aqui)
+      ans.classList.add('hidden');
+    } else {
+      // Aberta
+      if (state.answerRevealed){
+        ans.classList.remove('hidden');
+        aText.textContent = state.currentQuestion.a;
+      }
+      if (state.turnActive && !state.answerRevealed){
+        inputWrap.classList.remove('hidden');
+        input.classList.remove('ok','no');
+        input.disabled = false; input.value = '';
+        confirmBtn.disabled = false;
+      } else if (state.turnActive && state.answerRevealed){
+        inputWrap.classList.remove('hidden');
+        input.disabled = true; confirmBtn.disabled = true;
+      }
     }
   } else if (state.useQuestions && questionsExhausted()){
     exhausted.classList.remove('hidden');
-  } else if (state.useQuestions && validQuestionsCount() === 0){
-    warn.classList.remove('hidden');
-  } else if (!state.useQuestions){
-    warn.classList.remove('hidden');
   } else {
     warn.classList.remove('hidden');
   }
 
   updateSecondary();
+}
+function renderMultipleChoice(){
+  const wrap = document.getElementById('csOptions');
+  if (!state.currentQuestion || state.currentQuestion.type !== 'multiple') return;
+  const opts = getDisplayOptions(state.currentQuestion);
+  wrap.innerHTML = '';
+  opts.forEach((opt, di) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.dataset.isCorrect = opt.isCorrect ? '1' : '0';
+    btn.innerHTML = `<span class="letter">${opt.letter}</span><span class="text">${escapeHtml(opt.text)}</span>`;
+    btn.onclick = () => onSelectOption(btn, opt.isCorrect);
+    if (!state.turnActive || state.answerRevealed) btn.disabled = true;
+    if (state.answerRevealed && opt.isCorrect) btn.classList.add('ok');
+    wrap.appendChild(btn);
+  });
+  wrap.classList.remove('hidden');
+}
+function onSelectOption(btn, isCorrect){
+  if (!state.turnActive) return;
+  if (state.answerRevealed) return;
+  // Desabilita todas
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  // Colore
+  if (isCorrect) btn.classList.add('ok');
+  else {
+    btn.classList.add('no');
+    // Mostra qual era a correta
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      if (b.dataset.isCorrect === '1') b.classList.add('ok');
+    });
+  }
+  // Processa depois de um breve delay (dá tempo pro feedback visual)
+  setTimeout(() => {
+    const u = currentUnit();
+    if (u) handleAnswer(u.id, isCorrect, null, false);
+  }, 400);
 }
 function updateSecondary(){
   const reveal = document.getElementById('scReveal');
@@ -2133,6 +2364,7 @@ function updateSecondary(){
 }
 function confirmTyped(){
   if (!state.turnActive || !state.currentQuestion) return;
+  if (state.currentQuestion.type === 'multiple') return; // usa botões
   const input = document.getElementById('csInput');
   const typed = input.value.trim();
   if (!typed){
@@ -2158,7 +2390,8 @@ document.getElementById('csInput').addEventListener('keydown', e => {
 });
 function revealAnswer(){
   if (!state.currentQuestion || state.answerRevealed) return;
-  state.answerRevealed = true; renderQuestionUI();
+  state.answerRevealed = true;
+  renderQuestionUI();
 }
 function startTimer(){
   stopTimer();
@@ -2213,7 +2446,7 @@ function startTurn(){
   }
 
   startTimer();
-  if (state.currentQuestion){
+  if (state.currentQuestion && state.currentQuestion.type === 'open'){
     setTimeout(() => {
       const inp = document.getElementById('csInput');
       if (inp && !inp.disabled && state.turnActive) inp.focus();
@@ -2236,6 +2469,7 @@ function highlightUnit(unitId, cls){
 function shrinkCardForResult(){
   document.getElementById('csSecondary').classList.add('hidden');
   document.getElementById('csInputWrap').classList.add('hidden');
+  document.getElementById('csOptions').classList.add('hidden');
   document.getElementById('csQuestion').classList.add('hidden');
   document.getElementById('csWarn').classList.add('hidden');
   document.getElementById('csExhausted').classList.add('hidden');
@@ -2443,14 +2677,12 @@ async function playFinale(){
   await wait(700);
   showWinnerOverlay(winners, topScore);
 }
-
 function makeUnitFallInArena(unit, arena){
   return new Promise(resolve => {
     const players = unit.members
       .map(m => arena.querySelector(`.player[data-member-id="${m.id}"]`))
       .filter(Boolean);
     if (!players.length){ resolve(); return; }
-
     players.forEach((el, idx) => {
       el.classList.remove('dimmed','spotlight');
       el.classList.add('wrong');
@@ -2465,16 +2697,13 @@ function makeUnitFallInArena(unit, arena){
       }, 800 + idx * 100);
       setTimeout(() => el.classList.add('out'), 1900 + idx * 100);
     });
-
     setTimeout(() => {
       arena.classList.add('shake');
       setTimeout(() => arena.classList.remove('shake'), 600);
     }, 1800);
-
     setTimeout(resolve, 2300);
   });
 }
-
 function showWinnerOverlay(winners, topScore){
   const isTie = winners.length > 1;
   const titleTxt = state.mode === 'team'
@@ -2517,7 +2746,6 @@ function spawnConfetti(){
     container.appendChild(p);
   }
 }
-
 function endGame(winner){
   state.ended = true;
   state.turnActive = false;
@@ -2557,7 +2785,6 @@ function endGame(winner){
   document.body.appendChild(overlay);
   requestAnimationFrame(() => overlay.classList.add('show'));
 }
-
 function encerrar(){
   if (state.ended) return;
   if (!confirm('Encerrar o jogo agora e mostrar o vencedor?')) return;
@@ -2568,7 +2795,6 @@ function encerrar(){
   }
 }
 
-/* Inicializa verificação */
 updateQuestionRequirement();
 
 if ('serviceWorker' in navigator) {
